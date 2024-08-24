@@ -4,15 +4,20 @@ import { vec3 } from './math/vec3.js'
 export const VIEW_WIDTH = 480
 export const VIEW_HEIGHT = 360
 export const VIEW_RATIO = VIEW_WIDTH / VIEW_HEIGHT
+export let VIEW_MARGIN_X = 0
+export let VIEW_MARGIN_Y = 0
 
 // Loop
 import { mat4, setOrthographicProjection } from './math/mat4.js'
 
 export let deltaTime
 
-export function startGame(update, render) {
+let customOnResize
+
+export function startGame(update, render, onResize) {
   let previousT
   let raf
+  customOnResize = onResize
 
   function tick(t) {
     raf = window.requestAnimationFrame(tick)
@@ -39,30 +44,32 @@ export let viewMatrix = mat4()
 
 export const canvas = document.querySelector('canvas')
 export const gl = canvas.getContext('webgl2', {
-  antialias: false
+  antialias: true
 })
 
 function onResize() {
   canvas.width = window.innerWidth * window.devicePixelRatio
   canvas.height = window.innerHeight * window.devicePixelRatio
 
-  let offsetX = 0
-  let offsetY = 0
+  VIEW_MARGIN_X = 0
+  VIEW_MARGIN_Y = 0
   if (canvas.width / canvas.height > VIEW_RATIO) {
-    offsetX = (VIEW_HEIGHT * canvas.width / canvas.height - VIEW_WIDTH) / 2
+    VIEW_MARGIN_X = Math.round((VIEW_HEIGHT * canvas.width / canvas.height - VIEW_WIDTH) / 2)
   }
   else {
-    offsetY = (VIEW_WIDTH * canvas.height / canvas.width - VIEW_HEIGHT) / 2
+    VIEW_MARGIN_Y = Math.round((VIEW_WIDTH * canvas.height / canvas.width - VIEW_HEIGHT) / 2)
   }
 
   setOrthographicProjection(
     projectionMatrix,
-    VIEW_HEIGHT + offsetY,
-    -offsetY,
-    -offsetX,
-    VIEW_WIDTH + offsetX,
+    VIEW_HEIGHT + VIEW_MARGIN_Y,
+    -VIEW_MARGIN_Y,
+    -VIEW_MARGIN_X,
+    VIEW_WIDTH + VIEW_MARGIN_X,
     0, 100
   )
+
+  customOnResize?.()
 }
 window.onresize = onResize
 onResize()

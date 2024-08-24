@@ -58,7 +58,20 @@ export class VertexBuffer {
   draw () {
     gl.bindVertexArray(this.va)
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vb)
+    if (this.indexBuffer) {
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer.buffer)
 
-    gl.drawArrays(this.type, 0, this.vertexCount)
+      gl.drawElements(gl.TRIANGLES, this.indexBuffer.count, gl.UNSIGNED_SHORT, 0)
+    }
+    else {
+      gl.bindVertexArray(this.va)
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.vb)
+
+      gl.drawArrays(this.type, 0, this.vertexCount)
+    }
+  }
+
+  setIndexBuffer(indexBuffer) {
+    this.indexBuffer = indexBuffer
   }
 }

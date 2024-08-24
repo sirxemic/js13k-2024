@@ -3,7 +3,7 @@ import { Material } from '../../engine/graphics/Material.js'
 export let handleMaterial = new Material(`/*glsl*/
 in vec2 varyingUv;
 vec4 shader() {
-  float alpha = smoothstep(1.0, 0.95, length(varyingUv));
+  float alpha = smoothstep(1.02, 1.0, length(varyingUv));
   float color1 = 0.7 + 0.3 * smoothstep(0.7, 0.8, length(varyingUv));
   color1 = mix(color1, 1.0, 0.5 + varyingUv.x + varyingUv.y);
   return vec4(vec3(color1), alpha);

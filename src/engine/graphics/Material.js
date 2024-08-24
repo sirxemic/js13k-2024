@@ -9,7 +9,6 @@ precision highp float;
 in vec3 varyingPosition;
 out vec4 o;
 
-uniform vec4 uniformColor;
 uniform sampler2D uniformTextures[2];
 `,
   fSSC1: `/*glsl*/
