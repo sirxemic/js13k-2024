@@ -1,0 +1,29 @@
+{
+  "name": "js13k-2024",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev-vr": "cross-env VR=1 vite",
+    "build": "node build.js",
+    "preview": "vite preview"
+  },
+  "author": "sirxemic",
+  "license": "MIT",
+  "devDependencies": {
+    "@luma.gl/constants": "^9.0.25",
+    "advzip-bin": "^2.0.0",
+    "google-closure-compiler": "^20240317.0.0",
+    "html-minifier": "^3.5.19",
+    "rollup": "^2.56.3",
+    "spglsl": "^0.2.8",
+    "tempfile": "^2.0.0"
+  },
+  "dependencies": {
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-url": "^6.1.0",
+    "cross-env": "^7.0.3",
+    "vite": "^5.4.2"
+  }
+}

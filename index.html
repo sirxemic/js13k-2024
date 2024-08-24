@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1">
+<title>Do Not Make 13!</title>
+<style>
+  * {
+    text-shadow: 0 0 0.25em #0008, 0 0 0.5em #fff;
+  }
+
+  body {
+    margin: 0;
+    overflow: hidden;
+    font-family: -apple-system, system-ui;
+    font-weight: 900;
+    color: #fff;
+    font-size: 2vmax;
+    cursor: default;
+    background: #000;
+    user-select: none;
+    -webkit-user-select: none;
+    text-align: center;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    z-index: 1;
+    position: fixed;
+    inset: 0;
+    padding: 1em;
+    background: #0003;
+  }
+
+  .loading {
+    background: #000;
+  }
+
+  [hidden] {
+    display: none
+  }
+</style>
+</head>
+<body>
+  <canvas></canvas>
+
+  <div class="loading">Generating assets...</div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
