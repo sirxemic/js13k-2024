@@ -39,6 +39,8 @@ export async function build({ fixBeforeMinify, fixAfterHtmlMinify }) {
   const { output } = await bundle.generate(outputOptions)
   let code = output[0].code
 
+  code = `(async () => {${code}})()`
+
   const postProcessFunctions = [
     setGameID,
     transformConstToLet,

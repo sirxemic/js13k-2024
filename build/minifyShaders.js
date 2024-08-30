@@ -13,6 +13,12 @@ export async function replaceAsync(string, searchValue, replacer) {
 }
 
 export async function minifyShaders (code) {
+  const allInternalNames = [...new Set([...code.matchAll(/\b(varying|uniform|attribute)[A-Z]\w+\b/g)].map(m => m[0]))]
+  code = code.replace(/\b(varying|uniform|attribute)[A-Z]\w+\b/g, (match) => {
+    if (match === 'uniformMatrix4fv') return match
+    return '_' + allInternalNames.indexOf(match)
+  })
+
   return await replaceAsync(code, /"\s*(\\n)?\/\*glsl\*\/([\s\S]+?)"/g, async shaderCode => {
     const s = JSON.parse(shaderCode)
 

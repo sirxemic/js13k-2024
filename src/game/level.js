@@ -1,6 +1,15 @@
 import { VertexBuffer } from '../engine/graphics/VertexBuffer.js'
-import { deltaTime, gl, pointerPosition, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_MARGIN_Y, VIEW_WIDTH } from '../engine.js'
-import { addScaled, distance, subtract, vec3, vec3Normalize } from '../math/vec3.js'
+import {
+  deltaTime,
+  gl,
+  lastPointerPosition,
+  pointerPosition,
+  VIEW_HEIGHT,
+  VIEW_MARGIN_X,
+  VIEW_MARGIN_Y,
+  VIEW_WIDTH
+} from '../engine.js'
+import { add, addScaled, distance, subtract, vec3, vec3Normalize } from '../math/vec3.js'
 import { clamp } from '../math/math.js'
 import { strandMaterial } from '../assets/materials/strandMaterial.js'
 import { mat4 } from '../math/mat4.js'
@@ -13,22 +22,24 @@ import { halfMaterial } from '../assets/materials/halfMaterial.js'
 import { IndexBuffer } from '../engine/graphics/IndexBuffer.js'
 import { triangulate } from './triangulate.js'
 import { getPolygonIntersections } from './getPolygonIntersections.js'
+import { handleDrag, handleFinish, renderStartArrow } from './startArrow.js'
+import { debugMaterial } from '../assets/materials/debugMaterial.js'
 
-const TOP_HALF_COLOR = vec3([1, 0, 0])
-const BOTTOM_HALF_COLOR = vec3([0.1, 0.2, 1])
-const TOP_HALF_TEXT_COLOR = vec3([0, 0, 0])
-const BOTTOM_HALF_TEXT_COLOR = vec3([1, 1, 1])
+const TOP_HALF_COLOR = vec3([1, 0.2, 0.2])
+const BOTTOM_HALF_COLOR = vec3([0, 0, 1])
+const TOP_HALF_TEXT_COLOR = BOTTOM_HALF_COLOR
+const BOTTOM_HALF_TEXT_COLOR = TOP_HALF_COLOR
 
 const STATE_PLAYING = 0
 const STATE_FINISH_ANIMATION = 1
 
 const handleSize = 16
 
-const strand = new VertexBuffer(gl.LINE_STRIP)
+const strand = new VertexBuffer()
 strand.vertexLayout([3])
 strand.vertexData(new Float32Array(3 * 10 * 1024))
 
-const endStrand = new VertexBuffer(gl.LINE_STRIP)
+const endStrand = new VertexBuffer()
 endStrand.vertexLayout([3])
 endStrand.vertexData(new Float32Array(3 * 2))
 
@@ -60,25 +71,40 @@ export function getLevel({
   const strandPositions = [
     vec3(startPosition)
   ]
-  let dragging = false
+  let dragStart
+  let handleAtDragStart
   let state = STATE_PLAYING
   let time = 0
 
   let halfs
 
+  function checkUndo() {
+    for (let i = 1; i < strandPositions.length - 1; i++) {
+      if (distance(strandPositions[i], lastPointerPosition) < handleSize) {
+        strandPositions.length = i + 1
+        handlePosition.set(strandPositions.at(-1))
+        handleTarget.set(strandPositions.at(-1))
+      }
+    }
+  }
+
   function update() {
     if (state === STATE_PLAYING) {
-      if (dragging) {
+      if (dragStart) {
         if (!pointerPosition) {
-          dragging = false
+          if (distance(dragStart, lastPointerPosition) < 2) {
+            checkUndo()
+          }
+          dragStart = undefined
         }
         else {
-          handleTarget.set(pointerPosition)
+          add(handleTarget, subtract(vec3(), pointerPosition, dragStart), handleAtDragStart)
           if (distance(handleTarget, endPosition) > handleSize * 2) {
             handleTarget[0] = clamp(handleTarget[0], handleSize, VIEW_WIDTH - handleSize)
             handleTarget[1] = clamp(handleTarget[1], handleSize, VIEW_HEIGHT - handleSize)
           }
           else if (handleTarget[0] > VIEW_WIDTH) {
+            handleFinish()
             state = STATE_FINISH_ANIMATION
             handleTarget.set(endPosition)
             strandPositions.push(endPosition)
@@ -92,14 +118,15 @@ export function getLevel({
           }
         }
       }
-      else {
-        if (pointerPosition && distance(pointerPosition, handlePosition) < handleSize) {
-          dragging = true
+      else if (pointerPosition) {
+        dragStart = vec3(pointerPosition)
+        handleAtDragStart = vec3(handleTarget)
 
-          const index = elements.findIndex(element => element.texture === titleTexture)
-          if (index !== -1) {
-            elements.splice(index, 1)
-          }
+        handleDrag()
+
+        const index = elements.findIndex(element => element.texture === titleTexture)
+        if (index !== -1) {
+          elements.splice(index, 1)
         }
       }
     }
@@ -133,9 +160,18 @@ export function getLevel({
         }
         else {
           const lastPoint = strandPositions.at(-1)
-          if (strandPositions.some(point2 => {
-            return point2 !== lastPoint && distance(point, point2) <= handleSize
-          })) {
+          if (
+            elements.some(element => {
+              return (
+                Math.abs(point[0] - element.position[0]) < element.width
+                && Math.abs(point[1] - element.position[1]) < element.height
+              )
+            })
+            ||
+            strandPositions.some(point2 => {
+              return point2 !== lastPoint && distance(point, point2) <= handleSize
+            })
+          ) {
             handlePosition.set(lastPoint)
             handleTarget.set(lastPoint)
             return
@@ -157,7 +193,6 @@ export function getLevel({
       halfMaterial.shader.set1f('uniformNegRadius', time * time)
       halfs.forEach(half => {
         halfMaterial.shader.set3fv('uniformColor', half.color)
-        console.log('...')
         half.vertexBuffer.draw()
       })
     }
@@ -167,8 +202,8 @@ export function getLevel({
     strandMaterial.setModel(mat4())
     strandMaterial.shader.set1f('uniformNegRadius', time * time)
     strand.vertexCount = strandPositions.length + 1
-    strand.draw()
-    endStrand.draw()
+    strand.draw(gl.LINE_STRIP)
+    endStrand.draw(gl.LINE_STRIP)
 
     if (state === STATE_PLAYING) {
       endMaterial.shader.bind()
@@ -177,7 +212,7 @@ export function getLevel({
         handleSize, 0, 0, 0,
         0, handleSize, 0, 0,
         0, 0, 1, 0,
-        ...pixelAligned(endPosition), 1
+        ...endPosition, 1
       ]))
       quad.draw()
     }
@@ -193,9 +228,21 @@ export function getLevel({
         element.size, 0, 0, 0,
         0, element.size, 0, 0,
         0, 0, 1, 0,
-        ...pixelAligned(element.position), 1
+        ...element.position, 1
       ]))
       quad.draw()
+    }
+
+    for (const element of elements) {
+      debugMaterial.shader.bind()
+      debugMaterial.updateCameraUniforms()
+      debugMaterial.setModel(mat4([
+        element.width, 0, 0, 0,
+        0, element.height, 0, 0,
+        0, 0, 1, 0,
+        ...element.position, 1
+      ]))
+      quad.draw(gl.LINE_STRIP)
     }
 
     handleMaterial.shader.bind()
@@ -204,9 +251,11 @@ export function getLevel({
       handleSize, 0, 0, 0,
       0, handleSize, 0, 0,
       0, 0, 1, 0,
-      ...pixelAligned(handlePosition), 1
+      ...handlePosition, 1
     ]))
     quad.draw()
+
+    renderStartArrow()
   }
 
   function getHalfColor(position) {
@@ -285,8 +334,4 @@ export function getLevel({
     update,
     render
   }
-}
-
-function pixelAligned(vec) {
-  return vec.map(Math.floor)
 }

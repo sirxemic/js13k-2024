@@ -1,9 +1,7 @@
 import { gl } from '../../engine.js'
 
 export class VertexBuffer {
-  constructor (type = gl.TRIANGLES) {
-    this.type = type
-
+  constructor () {
     this.va = gl.createVertexArray()
     gl.bindVertexArray(this.va)
 
@@ -55,7 +53,7 @@ export class VertexBuffer {
     gl.bufferSubData(gl.ARRAY_BUFFER, offset, data)
   }
 
-  draw () {
+  draw (type = gl.TRIANGLES) {
     gl.bindVertexArray(this.va)
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vb)
     if (this.indexBuffer) {
@@ -67,7 +65,7 @@ export class VertexBuffer {
       gl.bindVertexArray(this.va)
       gl.bindBuffer(gl.ARRAY_BUFFER, this.vb)
 
-      gl.drawArrays(this.type, 0, this.vertexCount)
+      gl.drawArrays(type, 0, this.vertexCount)
     }
   }
 

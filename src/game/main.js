@@ -2,8 +2,6 @@ import { canvas, gl, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_MARGIN_Y, VIEW_WIDTH } fro
 import { vec3 } from '../math/vec3.js'
 import { getLevel } from './level.js'
 import { RenderTexture } from '../engine/graphics/RenderTexture.js'
-import { quad } from '../assets/geometries/quad.js'
-import { pixelartMaterial } from '../assets/materials/pixelartMaterial.js'
 import { oneTextures, threeTextures, titleTexture } from '../assets/textures/textTextures.js'
 
 const level = getLevel({
@@ -13,11 +11,15 @@ const level = getLevel({
     {
       texture: oneTextures[0],
       size: 50,
+      width: 30,
+      height: 50,
       position: vec3([VIEW_WIDTH / 2 - 40, 180, 0])
     },
     {
       texture: threeTextures[0],
       size: 50,
+      width: 30,
+      height: 50,
       position: vec3([VIEW_WIDTH / 2 + 40, 180, 0])
     },
     {

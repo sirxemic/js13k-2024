@@ -4,5 +4,9 @@ import packageJson from './package.json'
 export default defineConfig({
   define: {
     GAME_ID: JSON.stringify(`${packageJson.author}_${packageJson.name}`)
+  },
+
+  server: {
+    host: '0.0.0.0'
   }
 })

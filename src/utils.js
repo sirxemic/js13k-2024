@@ -38,3 +38,20 @@ export const updateInitProgress = () => new Promise(resolve => {
   loading.textContent += '.'
   requestAnimationFrame(resolve)
 })
+
+export function debug(...things) {
+  let debugDiv = document.querySelector('.debug')
+  if (!debugDiv) {
+    debugDiv = document.createElement('div')
+    debugDiv.className = 'debug'
+    debugDiv.style.position = 'fixed'
+    debugDiv.style.bottom = '0'
+    debugDiv.style.left = '0'
+    debugDiv.style.fontSize = '16px'
+    debugDiv.style.pointerEvents = 'none'
+    document.body.append(debugDiv)
+  }
+  const row = document.createElement('div')
+  row.textContent = things.join(';')
+  debugDiv.appendChild(row)
+}
