@@ -1,11 +1,9 @@
 import { levels } from './levels.js'
 
 export let currentLevelIndex = 0
-
-export function getCurrentLevel() {
-  return levels[currentLevelIndex]
-}
+export let currentLevel = levels[0]()
 
 export function nextLevel() {
   currentLevelIndex++
+  currentLevel = levels[currentLevelIndex]()
 }

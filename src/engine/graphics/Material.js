@@ -66,14 +66,7 @@ export class Material {
     }
   }
 
-  updateCameraUniforms () {
-    this.shader.bind()
-    this.shader.set4x4f('uniformProjection', projectionMatrix)
-    this.shader.set4x4f('uniformView', viewMatrix)
-  }
-
   setModel (mat) {
-    this.shader.bind()
     this.shader.set4x4f('uniformModel', mat)
   }
 

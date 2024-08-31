@@ -1,6 +1,6 @@
 import { canvas, gl, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_MARGIN_Y, VIEW_WIDTH } from '../engine.js'
 import { RenderTexture } from '../engine/graphics/RenderTexture.js'
-import { getCurrentLevel } from './currentLevel.js'
+import { currentLevel } from './currentLevel.js'
 
 const lowresRT = new RenderTexture({
   width: 2 * VIEW_MARGIN_X + VIEW_WIDTH,
@@ -12,7 +12,7 @@ export function onResize() {
 }
 
 export function update() {
-  getCurrentLevel().update()
+  currentLevel.update()
 }
 
 gl.lineWidth(5)
@@ -28,5 +28,5 @@ export function render() {
   gl.disable(gl.DEPTH_TEST)
   gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
 
-  getCurrentLevel().render()
+  currentLevel.render()
 }

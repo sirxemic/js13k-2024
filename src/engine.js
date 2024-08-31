@@ -20,10 +20,9 @@ export function startGame(update, render, onResize) {
   customOnResize = onResize
 
   function tick(t) {
-    raf = window.requestAnimationFrame(tick)
-
     if (!previousT) {
       previousT = t
+      raf = window.requestAnimationFrame(tick)
       return
     }
 
@@ -33,6 +32,7 @@ export function startGame(update, render, onResize) {
     render()
 
     previousT = t
+    raf = window.requestAnimationFrame(tick)
   }
 
   window.requestAnimationFrame(tick)
@@ -73,6 +73,12 @@ function onResize() {
 }
 window.onresize = onResize
 onResize()
+
+export function useMaterial(material) {
+  material.shader.bind()
+  material.shader.set4x4f('uniformProjection', projectionMatrix)
+  material.shader.set4x4f('uniformView', viewMatrix)
+}
 
 // Audio
 export let audioContext = new window.AudioContext({ sampleRate: 22050 })
