@@ -22,9 +22,9 @@ import { partitionMaterial } from '../assets/materials/partitionMaterial.js'
 import { IndexBuffer } from '../engine/graphics/IndexBuffer.js'
 import { triangulate } from './triangulate.js'
 import { getPolygonIntersections } from './getPolygonIntersections.js'
-import { startArrowHandleDrag, startArrowHandleFinish, startArrowRender } from './startArrow.js'
 import { getEquations } from './getEquations.js'
 import { nextLevel } from './currentLevel.js'
+import { debugMaterial } from '../assets/materials/debugMaterial.js'
 
 const PARTITION_COLORS = [
   vec3([1, 0.2, 0.2]),
@@ -39,20 +39,20 @@ const STATE_UNDO_FINISH = 3
 
 const handleSize = 16
 
-const strand = new VertexBuffer()
-strand.vertexLayout([3])
-strand.vertexData(new Float32Array(3 * 10 * 1024))
-
-const endStrand = new VertexBuffer()
-endStrand.vertexLayout([3])
-endStrand.vertexData(new Float32Array(3 * 2))
-
 export function getLevel({
   startPosition,
   endPosition,
   elements,
-  showTutorial
+  entities
 }) {
+  const strand = new VertexBuffer()
+  strand.vertexLayout([3])
+  strand.vertexData(new Float32Array(3 * 10 * 1024))
+
+  const endStrand = new VertexBuffer()
+  endStrand.vertexLayout([3])
+  endStrand.vertexData(new Float32Array(3 * 2))
+
   elements.forEach(element => {
     element.originalSize = element.size
     element.originalPosition = vec3(element.position)
@@ -81,7 +81,7 @@ export function getLevel({
     dragStart = vec3(pointerPosition)
     handleAtDragStart = vec3(handleTarget)
 
-    startArrowHandleDrag()
+    entities.find(ent => ent.tag === 'startArrow')?.handleDrag()
 
     const index = elements.findIndex(element => element.texture === titleTexture)
     if (index !== -1) {
@@ -107,7 +107,7 @@ export function getLevel({
   }
 
   function setFinished() {
-    startArrowHandleFinish()
+    entities.find(ent => ent.tag === 'startArrow')?.handleFinish()
     state = STATE_FINISH_ANIMATION
     handleTarget.set(endPosition)
     strandPositions.push(endPosition)
@@ -264,6 +264,7 @@ export function getLevel({
         backToPlayingUpdate()
         break
     }
+    entities.forEach(ent => ent.update())
   }
 
   function updateStrand() {
@@ -322,6 +323,8 @@ export function getLevel({
     ])
   )
 
+  let fadeAlpha = 1
+
   function render() {
     if (partitions) {
       partitionMaterial.shader.bind()
@@ -361,6 +364,7 @@ export function getLevel({
     for (const element of elements) {
       element.texture.bind()
       textMaterial.shader.set3fv('uniformColor2', element.color || vec3([0,0,0]))
+      textMaterial.shader.set1f('uniformAlpha', element.alpha || 1)
       textMaterial.setModel(mat4([
         element.size, 0, 0, 0,
         0, element.size, 0, 0,
@@ -370,17 +374,17 @@ export function getLevel({
       quad.draw()
     }
 
-    // for (const element of elements) {
-    //   debugMaterial.shader.bind()
-    //   debugMaterial.updateCameraUniforms()
-    //   debugMaterial.setModel(mat4([
-    //     element.width, 0, 0, 0,
-    //     0, element.height, 0, 0,
-    //     0, 0, 1, 0,
-    //     ...element.position, 1
-    //   ]))
-    //   quad.draw(gl.LINE_STRIP)
-    // }
+    for (const element of elements) {
+      debugMaterial.shader.bind()
+      debugMaterial.updateCameraUniforms()
+      debugMaterial.setModel(mat4([
+        element.width, 0, 0, 0,
+        0, element.height, 0, 0,
+        0, 0, 1, 0,
+        ...element.position, 1
+      ]))
+      quad.draw(gl.LINE_STRIP)
+    }
 
     handleMaterial.shader.bind()
     handleMaterial.updateCameraUniforms()
@@ -392,7 +396,7 @@ export function getLevel({
     ]))
     quad.draw()
 
-    if (showTutorial) startArrowRender()
+    entities.forEach(entity => entity.render())
   }
 
   function getElementPartition(position) {

@@ -32,12 +32,27 @@ export let titleTexture = new Texture({
   wrap: gl.CLAMP_TO_EDGE
 })
 
-export let oneTextures = await Promise.all([
-  generateText('1'),
-  generateText('1')
-])
+export let oneTexture = await generateText('1')
+export let twoTexture = await generateText('2')
+export let threeTexture = await generateText('3')
+export let plusTexture = await generateText('+')
 
-export let threeTextures = await Promise.all([
-  generateText('3'),
-  generateText('3')
-])
+export let endTexture = new Texture({
+  data: await getImageDataFromSvgCode(svgText({
+      text: `That's all!`,
+      style: '900 100px Times',
+      color: '#fff',
+      x: 512,
+      y: 512
+    }) + svgText({
+    text: `Thanks for playing!`,
+    style: '900 70px Times',
+    color: '#fff',
+    x: 512,
+    y: 600
+  }),
+    1024,
+    1024
+  ),
+  wrap: gl.CLAMP_TO_EDGE
+})

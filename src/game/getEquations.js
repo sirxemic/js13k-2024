@@ -1,6 +1,7 @@
 const equations = [
   [1, 3],
-  [1, 1, '+', 1, '+', 1]
+  [1, 1, '+', 1, '+', 1],
+  [1, 1, '+', 2]
 ]
 
 export function getEquations(partitionElements) {
