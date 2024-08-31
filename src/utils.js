@@ -1,5 +1,14 @@
 import { loading } from './ui.js'
 
+export function removeFromArray(arr, item) {
+  const index = arr.indexOf(item)
+  if (index > -1) {
+    arr.splice(index, 1)
+    return true
+  }
+  return false
+}
+
 export class EnvelopeSampler {
   constructor (envelope, logarithmic = false) {
     this.envelope = envelope

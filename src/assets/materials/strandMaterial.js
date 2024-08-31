@@ -4,7 +4,7 @@ export let strandMaterial = new Material(`/*glsl*/
 in vec2 varyingScreenPos;
 uniform float uniformNegRadius;
 vec4 shader() {
-  float factor = uniformNegRadius > length(varyingScreenPos) ? 0.0 : 1.0;
+  float factor = uniformNegRadius * 2.0 > length(varyingScreenPos) ? 0.0 : 1.0;
   return vec4(factor);
 }
 `, `/*glsl*/

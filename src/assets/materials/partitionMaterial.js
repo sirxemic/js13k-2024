@@ -1,12 +1,13 @@
 import { Material } from '../../engine/graphics/Material.js'
 
-export let halfMaterial = new Material(`/*glsl*/
+export let partitionMaterial = new Material(`/*glsl*/
 in vec2 varyingUv;
 uniform vec3 uniformColor;
 uniform float uniformNegRadius;
+uniform float uniformFade;
 vec4 shader() {
-  float factor = uniformNegRadius > length(varyingPosition.xy) ? 1.0 : 0.0;
-  return vec4(factor * uniformColor, 1.0);
+  float factor = uniformNegRadius * 2.0 > length(varyingPosition.xy) ? 1.0 : 0.0;
+  return vec4(factor * uniformColor * uniformFade, 1.0);
 }
 `, `/*glsl*/
 out vec2 varyingUv;

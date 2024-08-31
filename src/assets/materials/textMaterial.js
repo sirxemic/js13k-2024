@@ -7,7 +7,7 @@ uniform float uniformNegRadius;
 uniform vec3 uniformColor1;
 uniform vec3 uniformColor2;
 vec4 shader() {
-  vec3 color = uniformNegRadius > length(varyingScreenPos) ? uniformColor2 : uniformColor1;
+  vec3 color = uniformNegRadius * 2.0 > length(varyingScreenPos) ? uniformColor2 : uniformColor1;
   float alpha = texture(uniformTextures[0], varyingUv).a;
   return vec4(color, alpha);
 }

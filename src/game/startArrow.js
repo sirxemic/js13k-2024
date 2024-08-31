@@ -6,15 +6,15 @@ import { deltaTime, VIEW_HEIGHT, VIEW_WIDTH } from '../engine.js'
 let time = 0
 let state = 0
 
-export function handleDrag() {
+export function startArrowHandleDrag() {
   state = 1
 }
 
-export function handleFinish() {
+export function startArrowHandleFinish() {
   state = 2
 }
 
-export function renderStartArrow() {
+export function startArrowRender() {
   if (state === 2) {
     return
   }

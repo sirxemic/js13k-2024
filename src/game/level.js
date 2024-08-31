@@ -10,7 +10,7 @@ import {
   VIEW_WIDTH
 } from '../engine.js'
 import { add, addScaled, distance, subtract, vec3, vec3Normalize } from '../math/vec3.js'
-import { clamp } from '../math/math.js'
+import { clamp, smoothstep } from '../math/math.js'
 import { strandMaterial } from '../assets/materials/strandMaterial.js'
 import { mat4 } from '../math/mat4.js'
 import { handleMaterial } from '../assets/materials/handleMaterial.js'
@@ -18,20 +18,24 @@ import { quad } from '../assets/geometries/quad.js'
 import { endMaterial } from '../assets/materials/endMaterial.js'
 import { textMaterial } from '../assets/materials/textMaterial.js'
 import { titleTexture } from '../assets/textures/textTextures.js'
-import { halfMaterial } from '../assets/materials/halfMaterial.js'
+import { partitionMaterial } from '../assets/materials/partitionMaterial.js'
 import { IndexBuffer } from '../engine/graphics/IndexBuffer.js'
 import { triangulate } from './triangulate.js'
 import { getPolygonIntersections } from './getPolygonIntersections.js'
-import { handleDrag, handleFinish, renderStartArrow } from './startArrow.js'
-import { debugMaterial } from '../assets/materials/debugMaterial.js'
+import { startArrowHandleDrag, startArrowHandleFinish, startArrowRender } from './startArrow.js'
+import { getEquations } from './getEquations.js'
+import { nextLevel } from './currentLevel.js'
 
-const TOP_HALF_COLOR = vec3([1, 0.2, 0.2])
-const BOTTOM_HALF_COLOR = vec3([0, 0, 1])
-const TOP_HALF_TEXT_COLOR = BOTTOM_HALF_COLOR
-const BOTTOM_HALF_TEXT_COLOR = TOP_HALF_COLOR
+const PARTITION_COLORS = [
+  vec3([1, 0.2, 0.2]),
+  vec3([0.1, 0.1, 1]),
+  vec3([0.5, 1, 0.5])
+]
 
 const STATE_PLAYING = 0
 const STATE_FINISH_ANIMATION = 1
+const STATE_MAKE_EQUATION = 2
+const STATE_UNDO_FINISH = 3
 
 const handleSize = 16
 
@@ -46,37 +50,51 @@ endStrand.vertexData(new Float32Array(3 * 2))
 export function getLevel({
   startPosition,
   endPosition,
-  elements
+  elements,
+  showTutorial
 }) {
+  elements.forEach(element => {
+    element.originalSize = element.size
+    element.originalPosition = vec3(element.position)
+  })
+
+  let partitions
+
   const handlePosition = vec3(startPosition)
   const handleTarget = vec3(handlePosition)
-
-  strand.updateVertexData(
-    new Float32Array([
-      -1000, startPosition[1], 0,
-      ...startPosition
-    ]),
-    0
-  )
-
-  endStrand.updateVertexData(
-    new Float32Array([
-      ...endPosition,
-      endPosition[0] + 500,
-      endPosition[1],
-      endPosition[2]
-    ])
-  )
 
   const strandPositions = [
     vec3(startPosition)
   ]
+
+  // Controls
+
   let dragStart
   let handleAtDragStart
   let state = STATE_PLAYING
   let time = 0
+  let eqTime = 0
+  let undoUntil
+  let hasEquations = false
 
-  let halfs
+  function startDrag() {
+    dragStart = vec3(pointerPosition)
+    handleAtDragStart = vec3(handleTarget)
+
+    startArrowHandleDrag()
+
+    const index = elements.findIndex(element => element.texture === titleTexture)
+    if (index !== -1) {
+      elements.splice(index, 1)
+    }
+  }
+
+  function stopDrag() {
+    if (distance(dragStart, lastPointerPosition) < 2) {
+      checkUndo()
+    }
+    dragStart = undefined
+  }
 
   function checkUndo() {
     for (let i = 1; i < strandPositions.length - 1; i++) {
@@ -88,66 +106,167 @@ export function getLevel({
     }
   }
 
-  function update() {
-    if (state === STATE_PLAYING) {
-      if (dragStart) {
-        if (!pointerPosition) {
-          if (distance(dragStart, lastPointerPosition) < 2) {
-            checkUndo()
-          }
-          dragStart = undefined
-        }
-        else {
-          add(handleTarget, subtract(vec3(), pointerPosition, dragStart), handleAtDragStart)
-          if (distance(handleTarget, endPosition) > handleSize * 2) {
-            handleTarget[0] = clamp(handleTarget[0], handleSize, VIEW_WIDTH - handleSize)
-            handleTarget[1] = clamp(handleTarget[1], handleSize, VIEW_HEIGHT - handleSize)
-          }
-          else if (handleTarget[0] > VIEW_WIDTH) {
-            handleFinish()
-            state = STATE_FINISH_ANIMATION
-            handleTarget.set(endPosition)
-            strandPositions.push(endPosition)
-            strand.updateVertexData(
-              endPosition,
-              strandPositions.length * 3 * 4
-            )
-            time = 0
-            halfs = getHalfs()
-            return
-          }
-        }
+  function setFinished() {
+    startArrowHandleFinish()
+    state = STATE_FINISH_ANIMATION
+    handleTarget.set(endPosition)
+    strandPositions.push(endPosition)
+    strand.updateVertexData(
+      endPosition,
+      strandPositions.length * 3 * 4
+    )
+    time = 0
+    createPartitions()
+  }
+
+  function playingUpdate() {
+    if (dragStart) {
+      if (!pointerPosition) {
+        stopDrag()
       }
-      else if (pointerPosition) {
-        dragStart = vec3(pointerPosition)
-        handleAtDragStart = vec3(handleTarget)
-
-        handleDrag()
-
-        const index = elements.findIndex(element => element.texture === titleTexture)
-        if (index !== -1) {
-          elements.splice(index, 1)
+      else {
+        add(handleTarget, subtract(vec3(), pointerPosition, dragStart), handleAtDragStart)
+        if (distance(handleTarget, endPosition) > handleSize * 2) {
+          handleTarget[0] = clamp(handleTarget[0], handleSize, VIEW_WIDTH - handleSize)
+          handleTarget[1] = clamp(handleTarget[1], handleSize, VIEW_HEIGHT - handleSize)
+        }
+        else if (handleTarget[0] > VIEW_WIDTH) {
+          setFinished()
+          return
         }
       }
     }
+    else if (pointerPosition) {
+      startDrag()
+    }
 
-    if (state === STATE_FINISH_ANIMATION) {
-      handleTarget[0] = endPosition[0] + (time + 1) * time * 100
-      handleTarget[1] = endPosition[1]
+    handlePosition.set(handleTarget)
+    updateStrand()
+  }
 
-      const factor = 1 - Math.exp(-deltaTime * 20)
-      addScaled(handlePosition, handlePosition, subtract(vec3(), handleTarget, handlePosition), factor)
+  function finishUpdate() {
+    if (time === 0) {
+      undoUntil = strandPositions.at(-2)
+    }
+    handleTarget[0] = endPosition[0] + (time + 1) * time * 100
+    handleTarget[1] = endPosition[1]
 
-      time += deltaTime
+    const factor = 1 - Math.exp(-deltaTime * 20)
+    addScaled(handlePosition, handlePosition, subtract(vec3(), handleTarget, handlePosition), factor)
+
+    updateStrand()
+
+    time += deltaTime
+
+    if (time > 1) {
+      eqTime = 0
+      state = STATE_MAKE_EQUATION
+    }
+  }
+
+  function makeEquationUpdate() {
+    const CHAR_WIDTH = 70
+    const CHAR_HEIGHT = 80
+    if (eqTime === 0) {
+      let partitionElements = partitions.map(() => [])
+      for (const element of elements) {
+        partitionElements[element.partition].push(element)
+        element.targetSize = 0
+        element.targetPosition = element.position
+      }
+      const equations = getEquations(partitionElements)
+      hasEquations = equations.length > 0
+
+      if (hasEquations) {
+        for (let i = 0; i < equations.length; i++) {
+          for (let j = 0; j < equations[i].length; j++) {
+            equations[i][j].targetSize = 40
+            equations[i][j].targetPosition = vec3([
+              VIEW_WIDTH / 2 + (-(equations[i].length - 1) / 2 + j) * CHAR_WIDTH,
+              VIEW_HEIGHT / 2 + (-(equations.length - 1) / 2 + i) * CHAR_HEIGHT,
+              0
+            ])
+          }
+        }
+      }
     }
     else {
+      const t = smoothstep(0, 1, eqTime)
+      for (const element of elements) {
+        addScaled(element.position, element.originalPosition, subtract(vec3(), element.targetPosition, element.originalPosition), t)
+        if (element.targetSize !== 0) {
+          addScaled(element.position, element.position, vec3([Math.random() * 4 - 2, 0, 0]), 1 - t)
+        }
+        element.size = element.originalSize + (element.targetSize - element.originalSize) * t
+      }
+
+      if (eqTime > 1.2) {
+        if (hasEquations) {
+          backToPlayingUpdateTime = 0
+          state = STATE_UNDO_FINISH
+        }
+        else {
+          nextLevel()
+        }
+        return
+      }
+    }
+
+    eqTime += deltaTime * 2
+  }
+
+  let backToPlayingUpdateTime = 0
+  function backToPlayingUpdate() {
+    backToPlayingUpdateTime += deltaTime
+
+    const t = smoothstep(0, 1, backToPlayingUpdateTime)
+    for (const element of elements) {
+      addScaled(element.position, element.targetPosition, subtract(vec3(), element.originalPosition, element.targetPosition), t)
+      element.size = element.targetSize + (element.originalSize - element.targetSize) * t
+    }
+
+    if (backToPlayingUpdateTime < 1) {
+      const offScreen = vec3([endPosition[0] + 500, endPosition[1], endPosition[2]])
+      if (t < 0.5) {
+        addScaled(handlePosition, offScreen, subtract(vec3(), endPosition, offScreen), t * 2)
+        addScaled(handleTarget, offScreen, subtract(vec3(), endPosition, offScreen), t * 2)
+      }
+      else {
+        const t2 = (t - 0.5) * 2
+        addScaled(handleTarget, endPosition, subtract(vec3(), undoUntil, endPosition), t2)
+        handlePosition.set(handleTarget)
+      }
       updateStrand()
+    }
+    else {
+      time = 0
+      eqTime = 0
+      elements.forEach(element => {
+        delete element.color
+      })
+      partitions = undefined
+      state = STATE_PLAYING
+    }
+  }
+
+  function update() {
+    switch (state) {
+      case STATE_PLAYING:
+        playingUpdate()
+        break
+      case STATE_FINISH_ANIMATION:
+        finishUpdate()
+        break
+      case STATE_MAKE_EQUATION:
+        makeEquationUpdate()
+        break
+      case STATE_UNDO_FINISH:
+        backToPlayingUpdate()
+        break
     }
   }
 
   function updateStrand() {
-    handlePosition.set(handleTarget)
-
     const previousPosition = strandPositions.at(-1)
     let distanceToPrev = distance(handlePosition, previousPosition)
     if (distanceToPrev > handleSize) {
@@ -186,13 +305,31 @@ export function getLevel({
     }
   }
 
+  strand.updateVertexData(
+    new Float32Array([
+      -1000, startPosition[1], 0,
+      ...startPosition
+    ]),
+    0
+  )
+
+  endStrand.updateVertexData(
+    new Float32Array([
+      ...endPosition,
+      endPosition[0] + 500,
+      endPosition[1],
+      endPosition[2]
+    ])
+  )
+
   function render() {
-    if (halfs) {
-      halfMaterial.shader.bind()
-      halfMaterial.updateCameraUniforms()
-      halfMaterial.shader.set1f('uniformNegRadius', time * time)
-      halfs.forEach(half => {
-        halfMaterial.shader.set3fv('uniformColor', half.color)
+    if (partitions) {
+      partitionMaterial.shader.bind()
+      partitionMaterial.updateCameraUniforms()
+      partitionMaterial.shader.set1f('uniformNegRadius', time * time)
+      partitionMaterial.shader.set1f('uniformFade', 1 - smoothstep(0, 1, eqTime))
+      partitions.forEach(half => {
+        partitionMaterial.shader.set3fv('uniformColor', half.color)
         half.vertexBuffer.draw()
       })
     }
@@ -205,7 +342,7 @@ export function getLevel({
     strand.draw(gl.LINE_STRIP)
     endStrand.draw(gl.LINE_STRIP)
 
-    if (state === STATE_PLAYING) {
+    if (handlePosition[0] <= endPosition[0]) {
       endMaterial.shader.bind()
       endMaterial.updateCameraUniforms()
       endMaterial.setModel(mat4([
@@ -223,7 +360,7 @@ export function getLevel({
     textMaterial.shader.set3fv('uniformColor1', vec3([1,1,1]))
     for (const element of elements) {
       element.texture.bind()
-      textMaterial.shader.set3fv('uniformColor2', element.color2 || vec3([0,0,0]))
+      textMaterial.shader.set3fv('uniformColor2', element.color || vec3([0,0,0]))
       textMaterial.setModel(mat4([
         element.size, 0, 0, 0,
         0, element.size, 0, 0,
@@ -233,17 +370,17 @@ export function getLevel({
       quad.draw()
     }
 
-    for (const element of elements) {
-      debugMaterial.shader.bind()
-      debugMaterial.updateCameraUniforms()
-      debugMaterial.setModel(mat4([
-        element.width, 0, 0, 0,
-        0, element.height, 0, 0,
-        0, 0, 1, 0,
-        ...element.position, 1
-      ]))
-      quad.draw(gl.LINE_STRIP)
-    }
+    // for (const element of elements) {
+    //   debugMaterial.shader.bind()
+    //   debugMaterial.updateCameraUniforms()
+    //   debugMaterial.setModel(mat4([
+    //     element.width, 0, 0, 0,
+    //     0, element.height, 0, 0,
+    //     0, 0, 1, 0,
+    //     ...element.position, 1
+    //   ]))
+    //   quad.draw(gl.LINE_STRIP)
+    // }
 
     handleMaterial.shader.bind()
     handleMaterial.updateCameraUniforms()
@@ -255,17 +392,32 @@ export function getLevel({
     ]))
     quad.draw()
 
-    renderStartArrow()
+    if (showTutorial) startArrowRender()
   }
 
-  function getHalfColor(position) {
-    const intersectionCount = getPolygonIntersections(position, vec3([0, -1, 0]), strandPositions)
-    return intersectionCount % 2 === 0 ? TOP_HALF_TEXT_COLOR : BOTTOM_HALF_TEXT_COLOR
+  function getElementPartition(position) {
+    for (let i = 0; i < partitions.length; i++) {
+      const intersectionCount = getPolygonIntersections(position, vec3([Math.random(), 1, 0]), partitions[i].points)
+      if (intersectionCount % 2 === 1) {
+        return i
+      }
+    }
+    return -1
   }
 
-  function getHalfs() {
-    function getHalf(perimeterVertices, reverse) {
-      const half = new VertexBuffer()
+  function getElementPartitionColor(partitionIndex) {
+    if (partitionIndex === -1) {
+      alert('uhm?')
+      return vec3([0.5, 0.5, 0.5])
+    }
+    else {
+      return PARTITION_COLORS[(partitionIndex + 1) % partitions.length]
+    }
+  }
+
+  function createPartitions() {
+    function getPartition(perimeterVertices, color, reverse) {
+      const vertexBuffer = new VertexBuffer()
       const points = [
         ...strandPositions,
         vec3([
@@ -278,56 +430,56 @@ export function getLevel({
       if (reverse) {
         points.reverse()
       }
-      half.vertexLayout([3])
+      vertexBuffer.vertexLayout([3])
       const vertexData = new Float32Array(points.flatMap(x => [...x]))
-      half.vertexData(vertexData)
+      vertexBuffer.vertexData(vertexData)
 
       const indexBuffer1 = new IndexBuffer()
       const indices1 = triangulate(points)
       indexBuffer1.setData(new Uint16Array(indices1))
 
-      half.setIndexBuffer(indexBuffer1)
-      return half
+      vertexBuffer.setIndexBuffer(indexBuffer1)
+      return {
+        color,
+        points,
+        vertexBuffer
+      }
     }
+
+    partitions = [
+      getPartition([
+        vec3([
+          VIEW_WIDTH + VIEW_MARGIN_X,
+          -VIEW_MARGIN_Y,
+          0
+        ]),
+        vec3([
+          -VIEW_MARGIN_X,
+          -VIEW_MARGIN_Y,
+          0
+        ]),
+        vec3([-VIEW_MARGIN_X, startPosition[1], 0])
+      ], PARTITION_COLORS[0]),
+
+      getPartition([
+        vec3([
+          VIEW_WIDTH + VIEW_MARGIN_X,
+          VIEW_HEIGHT + VIEW_MARGIN_Y,
+          0
+        ]),
+        vec3([
+          -VIEW_MARGIN_X,
+          VIEW_HEIGHT + VIEW_MARGIN_Y,
+          0
+        ]),
+        vec3([-VIEW_MARGIN_X, startPosition[1], 0])
+      ], PARTITION_COLORS[1], true)
+    ]
 
     for (const element of elements) {
-      element.color2 = getHalfColor(element.position)
+      element.partition = getElementPartition(element.position)
+      element.color = getElementPartitionColor(element.partition)
     }
-
-    return [
-      {
-        vertexBuffer: getHalf([
-          vec3([
-            VIEW_WIDTH + VIEW_MARGIN_X,
-            -VIEW_MARGIN_Y,
-            0
-          ]),
-          vec3([
-            -VIEW_MARGIN_X,
-            -VIEW_MARGIN_Y,
-            0
-          ]),
-          vec3([-VIEW_MARGIN_X, startPosition[1], 0])
-        ]),
-        color: TOP_HALF_COLOR
-      },
-      {
-        vertexBuffer: getHalf([
-          vec3([
-            VIEW_WIDTH + VIEW_MARGIN_X,
-            VIEW_HEIGHT + VIEW_MARGIN_Y,
-            0
-          ]),
-          vec3([
-            -VIEW_MARGIN_X,
-            VIEW_HEIGHT + VIEW_MARGIN_Y,
-            0
-          ]),
-          vec3([-VIEW_MARGIN_X, startPosition[1], 0])
-        ], true),
-        color: BOTTOM_HALF_COLOR
-      }
-    ]
   }
 
   return {
