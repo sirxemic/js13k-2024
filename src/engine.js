@@ -81,7 +81,7 @@ export function useMaterial(material) {
 }
 
 // Audio
-export let audioContext = new window.AudioContext({ sampleRate: 22050 })
+export let audioContext = new window.AudioContext()
 export let audioDestination = audioContext.createDynamicsCompressor()
 export let contextSampleRate = audioContext.sampleRate
 

@@ -1,5 +1,5 @@
 import { rollup } from 'rollup'
-import fs from 'fs'
+import fs from 'node:fs'
 import rollupPluginJson from '@rollup/plugin-json'
 import rollupPluginUrl from '@rollup/plugin-url'
 

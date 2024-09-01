@@ -1,24 +1,42 @@
-import { applyEnvelope, createAudioBuffer, generateSound, sampleNoise } from '../../audio/utils.js'
+import { applyEnvelope, bandPassFilter, createAudioBuffer, generateSound, sampleNoise } from '../../audio/utils.js'
 
-export let reverbIR
+export let ReverbIR
 
 export function generateReverbIR () {
+  function createNoisyEnvelope () {
+    let t = 0
+    let result = []
+    do {
+      result.push([t, Math.random()])
+
+      t += 0.01
+    } while (t <= 1)
+
+    return result
+  }
+  const volumeEnvelope1 = createNoisyEnvelope()
+  const volumeEnvelope2 = createNoisyEnvelope()
+
   const globalEnvelope = [
-    [0, 1, 0.15],
+    [0, 0, 0.5],
+    [0.05, 1, 0.5],
     [1, 0]
   ]
 
-  const buffer1 = applyEnvelope(
-    generateSound(4, sampleNoise),
-    globalEnvelope
-  )
-
-  const buffer2 = applyEnvelope(
-    generateSound(4, sampleNoise),
-    globalEnvelope
-  )
-
-  reverbIR = createAudioBuffer([
-    buffer1, buffer2
+  ReverbIR = createAudioBuffer([
+    applyEnvelope(
+      applyEnvelope(
+        bandPassFilter(generateSound(2, sampleNoise), 500, 1),
+        volumeEnvelope1
+      ),
+      globalEnvelope
+    ),
+    applyEnvelope(
+      applyEnvelope(
+        bandPassFilter(generateSound(2, sampleNoise), 500, 1),
+        volumeEnvelope2
+      ),
+      globalEnvelope
+    )
   ])
 }

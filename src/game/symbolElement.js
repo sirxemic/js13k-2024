@@ -1,6 +1,6 @@
 import { oneTexture, plusTexture, threeTexture, twoTexture } from '../assets/textures/textTextures.js'
 import { textMaterial } from '../assets/materials/textMaterial.js'
-import { vec3 } from '../math/vec3.js'
+import { add, vec3, vec3Lerp } from '../math/vec3.js'
 import { mat4 } from '../math/mat4.js'
 import { quad } from '../assets/geometries/quad.js'
 import { fillEffectRadius } from './shared.js'
@@ -31,10 +31,23 @@ export class SymbolElement {
     this.originalSize = size
     this.originalPosition = vec3(position)
     this.initAnimationT = -size / 50
+    this.offset = vec3()
+    this.offsetFrom = vec3()
+    this.offsetTo = vec3([3 * (Math.random() - 0.5), 3 * (Math.random() - 0.5), 0])
+    this.offsetTime = 0
+    this.offsetTimeVel = Math.random() + 1
   }
 
   update() {
     this.initAnimationT += deltaTime * 2
+    this.offsetTime += deltaTime * this.offsetTimeVel
+    vec3Lerp(this.offset, this.offsetFrom, this.offsetTo, smoothstep(0, 1, this.offsetTime))
+    if (this.offsetTime >= 1) {
+      this.offsetTime -= 1
+      this.offsetFrom.set(this.offset)
+      this.offsetTo = vec3([3 * (Math.random() - 0.5), 3 * (Math.random() - 0.5), 0])
+      this.offsetTimeVel = Math.random() + 1
+    }
   }
 
   render() {
@@ -49,7 +62,7 @@ export class SymbolElement {
       this.size * initScale, 0, 0, 0,
       0, this.size * initScale, 0, 0,
       0, 0, 1, 0,
-      ...this.position, 1
+      ...add(vec3(), this.position, this.offset), 1
     ]))
     quad.draw()
 

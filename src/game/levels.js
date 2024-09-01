@@ -8,6 +8,7 @@ import { SymbolElement } from './symbolElement.js'
 import { Title } from './title.js'
 import { Strand } from './strand.js'
 import { Goal } from './goal.js'
+import { Tutorial } from './tutorial.js'
 
 export const levels = [
 
@@ -18,6 +19,7 @@ export const levels = [
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 180, 180, 0])),
     new Title(),
     new StartArrow(),
+    new Tutorial(),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2 + 70, 0])),
     new Strand(vec3([10, VIEW_HEIGHT / 2 + 70, 0]))
   ]),

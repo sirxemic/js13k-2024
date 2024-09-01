@@ -1,4 +1,5 @@
 import {
+  audioContext,
   deltaTime,
   pointerPosition,
   VIEW_HEIGHT,
@@ -6,38 +7,49 @@ import {
 } from '../engine.js'
 import { add, addScaled, distance, subtract, vec3, vec3Normalize } from '../math/vec3.js'
 import { clamp, smoothstep } from '../math/math.js'
-import { partitionMaterial } from '../assets/materials/partitionMaterial.js'
 import { getEquations } from './getEquations.js'
 import { nextLevel } from './currentLevel.js'
 import { SymbolElement } from './symbolElement.js'
 import {
-  fillEffectRadius,
-  HANDLE_SIZE, introTime,
-  partitions, resetIntroTime, resetShowingEquationsTime,
+  HANDLE_SIZE,
+  introTime,
+  partitions,
+  resetIntroTime,
+  resetShowingEquationsTime,
   setElements,
   setFillEffectRadius,
   setGoal,
   setLevelState,
   setPartitions,
-  setStrand, showingEquationsTime,
+  setStrand,
+  showingEquationsTime,
   levelState,
   STATE_FINISH_ANIMATION,
   STATE_INTRO,
   STATE_MAKE_EQUATION,
   STATE_PLAYING,
-  STATE_UNDO_FINISH, updateIntroTime, updateShowingEquationsTime
+  STATE_UNDO_FINISH,
+  updateIntroTime,
+  updateShowingEquationsTime,
+  resetUndoFinishTime,
+  updateUndoFinishTime,
+  undoFinishTime
 } from './shared.js'
 import { Strand } from './strand.js'
 import { Goal } from './goal.js'
 import { Partitioner } from './partitioner.js'
 import { Title } from './title.js'
 import { StartArrow } from './startArrow.js'
+import { Tutorial } from './tutorial.js'
+import { generateReverbIR } from '../assets/audio/reverbIR.js'
+import { setReverbDestination } from './audio.js'
 
 export function getLevel(entities) {
   const elements = entities.filter(ent => ent instanceof SymbolElement)
   const strand = entities.find(ent => ent instanceof Strand)
   const goal = entities.find(ent => ent instanceof Goal)
   const startArrow = entities.find(ent => ent instanceof StartArrow)
+  const tutorial = entities.find(ent => ent instanceof Tutorial)
   let title = entities.find(ent => ent instanceof Title)
 
   const partitioner = new Partitioner()
@@ -54,7 +66,7 @@ export function getLevel(entities) {
   let finishAnimationT = 0
   let hasEquations = false
 
-  function startDrag() {
+  async function startDrag() {
     strand.startDrag()
     startArrow?.handleDrag()
 
@@ -62,6 +74,8 @@ export function getLevel(entities) {
       entities.splice(entities.indexOf(title), 1)
       title = undefined
     }
+
+    await audioContext.resume()
   }
 
   function stopDrag() {
@@ -125,6 +139,9 @@ export function getLevel(entities) {
     finishAnimationT += deltaTime
 
     if (finishAnimationT > 1) {
+      if (elements[0].partition === elements[1].partition && tutorial) {
+        tutorial.show = true
+      }
       resetShowingEquationsTime()
       setLevelState(STATE_MAKE_EQUATION)
     }
@@ -168,7 +185,7 @@ export function getLevel(entities) {
 
       if (showingEquationsTime > 1.2) {
         if (hasEquations) {
-          backToPlayingUpdateTime = 0
+          resetUndoFinishTime()
           setLevelState(STATE_UNDO_FINISH)
         }
         else {
@@ -181,17 +198,16 @@ export function getLevel(entities) {
     updateShowingEquationsTime()
   }
 
-  let backToPlayingUpdateTime = 0
   function backToPlayingUpdate() {
-    backToPlayingUpdateTime += deltaTime
+    updateUndoFinishTime()
 
-    const t = smoothstep(0, 1, backToPlayingUpdateTime)
+    const t = smoothstep(0, 1, undoFinishTime)
     for (const element of elements) {
       addScaled(element.position, element.targetPosition, subtract(vec3(), element.originalPosition, element.targetPosition), t)
       element.size = element.targetSize + (element.originalSize - element.targetSize) * t
     }
 
-    if (backToPlayingUpdateTime < 1) {
+    if (undoFinishTime < 1) {
       const offScreen = vec3([goal.position[0] + 500, goal.position[1], goal.position[2]])
       if (t < 0.5) {
         addScaled(strand.handlePosition, offScreen, subtract(vec3(), goal.position, offScreen), t * 2)

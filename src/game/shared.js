@@ -1,6 +1,11 @@
 import { vec3 } from '../math/vec3.js'
 import { deltaTime } from '../engine.js'
 
+export let musicTime = 0
+export function updateMusicTime() {
+  musicTime += deltaTime
+}
+
 export let fillEffectRadius = 0
 export function setFillEffectRadius(value) {
   fillEffectRadius = value
@@ -20,6 +25,14 @@ export function resetShowingEquationsTime() {
 }
 export function updateShowingEquationsTime() {
   showingEquationsTime += deltaTime * 2
+}
+
+export let undoFinishTime = 0
+export function resetUndoFinishTime() {
+  undoFinishTime = 0
+}
+export function updateUndoFinishTime() {
+  undoFinishTime += deltaTime
 }
 
 export let strand

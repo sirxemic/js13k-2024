@@ -39,7 +39,7 @@ export let plusTexture = await generateText('+')
 
 export let endTexture = new Texture({
   data: await getImageDataFromSvgCode(svgText({
-      text: `That's all!`,
+      text: `That’s all!`,
       style: '900 100px Times',
       color: '#fff',
       x: 512,

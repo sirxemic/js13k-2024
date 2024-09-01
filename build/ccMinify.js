@@ -16,7 +16,8 @@ export async function ccMinify (code) {
     js: jsFilename,
     create_source_map: mapFilename,
     process_common_js_modules: true,
-    language_out: 'ECMASCRIPT_NEXT',
+    language_in: 'UNSTABLE',
+    language_out: 'UNSTABLE',
     compilation_level: 'ADVANCED'
   })
 
