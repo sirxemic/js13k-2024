@@ -39,6 +39,13 @@ export class EnvelopeSampler {
   }
 }
 
+export function ensureEnvelope(envelopeOrValue) {
+  if (typeof envelopeOrValue === 'number') {
+    return [[0, envelopeOrValue], [1, envelopeOrValue]]
+  }
+  return envelopeOrValue
+}
+
 /**
  * Waiting for the next frame is useful for preventing the browser to hang
  * while the assets are being generated

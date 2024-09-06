@@ -3,30 +3,47 @@ import {
   applyEnvelope,
   getFrequencyDelta,
   sampleTriangle,
-  createAudioBuffer, bandPassFilter
+  createAudioBuffer
 } from '../../audio/utils.js'
 import { updateInitProgress } from '../../utils.js'
+import { bandPassFilter } from '../../audio/filters.js'
+
+function getFreq(note) {
+  return 220 * 2 ** (note / 12)
+}
 
 const freqs = [
-  550 / 2,
-  660 / 2,
-  733.33 / 2,
+  // Bass line notes
+  getFreq(-7-12), // 0 = D0
+  getFreq(-5-12), // 1 = E0
+  getFreq(-3-12), // 2 = Fs0
+  getFreq(-2-12), // 3 = G0
+  getFreq(-12), // 4 = A0
 
-  440,
-  495,
-  550,
-  660,
-  733.33,
+  getFreq(-7), // 5 = D1
+  getFreq(-5), // 6 = E1
+  getFreq(-3), // 7 = Fs1
+  getFreq(-2), // 8 = G1
+  getFreq(0), // 9 = A1
 
-  880,
-  990,
-  1100,
-  1320,
-  1466.67
-].reverse()
+  // Melody notes
+  getFreq(4), // 10 = Cs2
+  getFreq(7), // 11 = E2
+  getFreq(9), // 12 = Fs2
+  getFreq(10), // 13 = G2
+  getFreq(12), // 14 = A2
+
+  getFreq(4+12), // 15 = Cs3
+  getFreq(7+12), // 16 = E3
+  getFreq(9+12), // 17 = Fs3
+  getFreq(10+12), // 18 = G3
+  getFreq(12+12), // 19 = A3
+
+  getFreq(4+24), // 20 = Cs4
+  getFreq(7+24), // 21 = E4
+]
 
 export let PluckSounds = []
-export const PLUCK_SOUNDS_COUNT = freqs.length
 
 let volumeEnvelope = [
   [0, 0, 2],

@@ -6,6 +6,6 @@ vec4 shader() {
 }
 `, `/*glsl*/
 void main() {
-  gl_Position = uniformProjection * uniformView * uniformModel * vec4(attributePosition, 1.0);
+  gl_Position = uniformProjection * uniformModel * vec4(attributePosition, 1.0);
 }
 `)

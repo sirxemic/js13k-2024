@@ -11,11 +11,6 @@ export class Tutorial {
     this.vertexBuffer.vertexLayout([3])
     this.vertexBuffer.vertexData(
       new Float32Array([
-        191,122,0,
-        198,120,0,
-        206,118,0,
-        214,118,0,
-        222,120,0,
         229,124,0,
         233,131,0,
         235,139,0,
@@ -31,13 +26,7 @@ export class Tutorial {
         237,219,0,
         238,227,0,
         239,234,0,
-        243,242,0,
-        248,247,0,
-        255,252,0,
-        262,255,0,
-        270,256,0,
-        278,256,0,
-        286,256,0
+        243,242,0
       ])
     )
     this.show = false

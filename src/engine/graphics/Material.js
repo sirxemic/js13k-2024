@@ -1,4 +1,4 @@
-import { gl, projectionMatrix, viewMatrix } from '../../engine.js'
+import { gl } from '../../engine.js'
 import { Shader } from './Shader.js'
 import { SubShader } from './Subshader.js'
 
@@ -21,7 +21,6 @@ precision highp float;
 layout(location = 0) in vec3 attributePosition;
 
 uniform mat4 uniformProjection;
-uniform mat4 uniformView;
 uniform mat4 uniformModel;
 
 out vec3 varyingPosition;
@@ -39,7 +38,7 @@ function buildFragmentShader (code) {
 const defaultVertexShader = buildVertexShader(`/*glsl*/
 void main() {
   varyingPosition = vec3(uniformModel * vec4(attributePosition, 1.0));
-  gl_Position = uniformProjection * uniformView * vec4(varyingPosition, 1.0);
+  gl_Position = uniformProjection * vec4(varyingPosition, 1.0);
 }
 `)
 

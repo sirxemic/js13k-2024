@@ -32,10 +32,26 @@ export let titleTexture = new Texture({
   wrap: gl.CLAMP_TO_EDGE
 })
 
-export let oneTexture = await generateText('1')
-export let twoTexture = await generateText('2')
-export let threeTexture = await generateText('3')
+export let digitTextures = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => generateText(digit)))
+
 export let plusTexture = await generateText('+')
+export let minusTexture = await generateText('−')
+export let multiplyTexture = await generateText('×')
+
+export let equals13Texture = new Texture({
+  data: await getImageDataFromSvgCode(
+    svgText({
+      text: '13',
+      style: '900 200px Times',
+      color: '#fff',
+      x: 256,
+      y: 320
+    }),
+    512,
+    512
+  ),
+  wrap: gl.CLAMP_TO_EDGE
+})
 
 export let endTexture = new Texture({
   data: await getImageDataFromSvgCode(svgText({

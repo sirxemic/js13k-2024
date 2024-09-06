@@ -3,21 +3,10 @@ import { distance, vec3 } from '../math/vec3.js'
 import { gl, lastPointerPosition, pointerPosition, useMaterial, VIEW_HEIGHT } from '../engine.js'
 import { strandMaterial } from '../assets/materials/strandMaterial.js'
 import { mat4 } from '../math/mat4.js'
-import { fillEffectRadius, HANDLE_SIZE, musicTime } from './shared.js'
+import { fillEffectRadius, HANDLE_SIZE, levelState, musicTime, STATE_PLAYING } from './shared.js'
 import { handleMaterial } from '../assets/materials/handleMaterial.js'
 import { quad } from '../assets/geometries/quad.js'
-import { PLUCK_SOUNDS_COUNT, PluckSounds } from '../assets/audio/Pluck.js'
-import { playSample } from './audio.js'
-
-const MIN_Y = HANDLE_SIZE
-const MAX_Y = VIEW_HEIGHT - HANDLE_SIZE
-const BAND_HEIGHT = (MAX_Y - MIN_Y) / PLUCK_SOUNDS_COUNT
-
-const pauses = [
-  0.1,
-  0.1,
-  0.2
-]
+import { setPosition } from './dynamicMusic.js'
 
 export class Strand {
   constructor(startPosition) {
@@ -42,14 +31,6 @@ export class Strand {
       ]),
       0
     )
-
-    this.lastBand = this.getBand()
-    this.lastSoundTime = 0
-    this.lastSoundTimePauseIndex = 0
-  }
-
-  getBand() {
-    return Math.floor((this.handlePosition[1] - MIN_Y) / BAND_HEIGHT)
   }
 
   startDrag() {
@@ -84,17 +65,11 @@ export class Strand {
   }
 
   update() {
-    const pause = pauses[this.lastSoundTimePauseIndex]
-    if (musicTime - this.lastSoundTime > pause) {
-      const band = this.getBand()
-      if (band !== this.lastBand) {
-        playSample(PluckSounds[band])
-        this.lastBand = band
-      }
-      while (musicTime - this.lastSoundTime > pause) {
-        this.lastSoundTime += pause
-        this.lastSoundTimePauseIndex = (this.lastSoundTimePauseIndex + 1) % pauses.length
-      }
+    if (levelState === STATE_PLAYING) {
+      setPosition(this.handlePosition)
+    }
+    else {
+      setPosition(undefined)
     }
   }
 

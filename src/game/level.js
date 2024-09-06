@@ -5,8 +5,8 @@ import {
   VIEW_HEIGHT,
   VIEW_WIDTH
 } from '../engine.js'
-import { add, addScaled, distance, subtract, vec3, vec3Normalize } from '../math/vec3.js'
-import { clamp, smoothstep } from '../math/math.js'
+import { add, addScaled, distance, subtract, vec3, vec3Lerp, vec3Normalize } from '../math/vec3.js'
+import { clamp, saturate, smoothstep } from '../math/math.js'
 import { getEquations } from './getEquations.js'
 import { nextLevel } from './currentLevel.js'
 import { SymbolElement } from './symbolElement.js'
@@ -33,7 +33,7 @@ import {
   updateShowingEquationsTime,
   resetUndoFinishTime,
   updateUndoFinishTime,
-  undoFinishTime
+  undoFinishTime, STATE_FINISH_EQUATION, setShowingEquationsTimeScale
 } from './shared.js'
 import { Strand } from './strand.js'
 import { Goal } from './goal.js'
@@ -41,8 +41,10 @@ import { Partitioner } from './partitioner.js'
 import { Title } from './title.js'
 import { StartArrow } from './startArrow.js'
 import { Tutorial } from './tutorial.js'
-import { generateReverbIR } from '../assets/audio/reverbIR.js'
-import { setReverbDestination } from './audio.js'
+import { playSample } from './audio.js'
+import { ErrorSound } from '../assets/audio/ErrorSound.js'
+import { playVictorySound } from './playVictorySound.js'
+import { startMusic } from './dynamicMusic.js'
 
 export function getLevel(entities) {
   const elements = entities.filter(ent => ent instanceof SymbolElement)
@@ -53,6 +55,8 @@ export function getLevel(entities) {
   let title = entities.find(ent => ent instanceof Title)
 
   const partitioner = new Partitioner()
+  let equals13Elements = []
+  let equations
 
   setStrand(strand)
   setGoal(goal)
@@ -76,6 +80,7 @@ export function getLevel(entities) {
     }
 
     await audioContext.resume()
+    startMusic()
   }
 
   function stopDrag() {
@@ -157,10 +162,11 @@ export function getLevel(entities) {
         element.targetSize = 0
         element.targetPosition = element.position
       }
-      const equations = getEquations(partitionElements)
+      equations = getEquations(partitionElements)
       hasEquations = equations.length > 0
 
       if (hasEquations) {
+        playSample(ErrorSound)
         for (let i = 0; i < equations.length; i++) {
           for (let j = 0; j < equations[i].length; j++) {
             equations[i][j].targetSize = 40
@@ -172,6 +178,11 @@ export function getLevel(entities) {
           }
         }
       }
+      else {
+        playVictorySound()
+      }
+
+      setShowingEquationsTimeScale(equations.some(eq => eq.length > 2) ? 4 : 2)
     }
     else {
       const t = smoothstep(0, 1, showingEquationsTime)
@@ -185,8 +196,8 @@ export function getLevel(entities) {
 
       if (showingEquationsTime > 1.2) {
         if (hasEquations) {
-          resetUndoFinishTime()
-          setLevelState(STATE_UNDO_FINISH)
+          setLevelState(STATE_FINISH_EQUATION)
+          initFinishEquation()
         }
         else {
           nextLevel()
@@ -198,13 +209,76 @@ export function getLevel(entities) {
     updateShowingEquationsTime()
   }
 
+  function setElementsAnimationPositionFrom() {
+    for (const element of elements) {
+      element.animationPositionFrom = vec3(element.position)
+    }
+  }
+
+  function initFinishEquation() {
+    setElementsAnimationPositionFrom()
+    equals13Elements = []
+    for (const element of elements) {
+      element.doMerge = false
+    }
+    for (const equation of equations) {
+      const doMerge = equation.map(el => el.value).join('') !== '13'
+      equation.forEach(element => element.doMerge = doMerge)
+      if (doMerge) {
+        const element = new SymbolElement('13', 150, vec3([VIEW_WIDTH / 2, equation[0].position[1], 0]))
+        element.color = equation[0].color
+        element.initAnimationT = 1
+        element.alpha = 0
+        equals13Elements.push(element)
+      }
+    }
+  }
+
+  function finishEquationUpdate() {
+    updateShowingEquationsTime()
+
+    const t = smoothstep(1.7, 2.2, showingEquationsTime)
+    const t2 = smoothstep(3.3, 5, showingEquationsTime)
+    if (t2 === 0) {
+      for (const element of elements) {
+        if (element.doMerge) {
+          vec3Lerp(element.position, element.animationPositionFrom, vec3([VIEW_WIDTH / 2, element.position[1], 0]), t)
+          element.alpha = (1 - t) ** 0.5
+        }
+      }
+
+      equals13Elements.forEach(element => {
+        element.alpha = t ** 2
+      })
+    }
+    else {
+      for (const element of elements) {
+        if (element.doMerge) {
+          vec3Lerp(element.position, vec3([VIEW_WIDTH / 2, element.position[1], 0]), element.animationPositionFrom, t2)
+          element.alpha = saturate(3 * t2)
+        }
+      }
+      equals13Elements.forEach(element => {
+        element.alpha = 1 - t2 * 3
+      })
+    }
+
+    const duration = equals13Elements.length > 0 ? 6 : 2
+    if (showingEquationsTime >= duration) {
+      setElementsAnimationPositionFrom()
+      resetUndoFinishTime()
+      setLevelState(STATE_UNDO_FINISH)
+    }
+  }
+
   function backToPlayingUpdate() {
     updateUndoFinishTime()
 
     const t = smoothstep(0, 1, undoFinishTime)
     for (const element of elements) {
-      addScaled(element.position, element.targetPosition, subtract(vec3(), element.originalPosition, element.targetPosition), t)
+      vec3Lerp(element.position, element.animationPositionFrom, element.originalPosition, t)
       element.size = element.targetSize + (element.originalSize - element.targetSize) * t
+      element.colorMerge = 1 - t
     }
 
     if (undoFinishTime < 1) {
@@ -224,6 +298,7 @@ export function getLevel(entities) {
       finishAnimationT = 0
       resetShowingEquationsTime()
       elements.forEach(element => {
+        element.colorMerge = 1
         element.color = undefined
       })
       setPartitions(undefined)
@@ -244,6 +319,9 @@ export function getLevel(entities) {
         break
       case STATE_MAKE_EQUATION:
         makeEquationUpdate()
+        break
+      case STATE_FINISH_EQUATION:
+        finishEquationUpdate()
         break
       case STATE_UNDO_FINISH:
         backToPlayingUpdate()
@@ -295,6 +373,10 @@ export function getLevel(entities) {
   function render() {
     partitioner.render()
     entities.forEach(entity => entity.render())
+    if (equals13Elements.length > 0) {
+      debugger
+    }
+    equals13Elements.forEach(element => element.render())
   }
 
   return {

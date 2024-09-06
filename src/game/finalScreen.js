@@ -16,6 +16,8 @@ export function finalScreen() {
       useMaterial(textMaterial)
       textMaterial.shader.set1f('uniformNegRadius', 0)
       textMaterial.shader.set3fv('uniformColor1', vec3([1,1,1]))
+      textMaterial.shader.set3fv('uniformColor2', vec3([0,0,0]))
+      textMaterial.shader.set1f('uniformAlpha', 1)
       endTexture.bind()
       textMaterial.setModel(mat4([
         VIEW_WIDTH / 2, 0, 0, 0,

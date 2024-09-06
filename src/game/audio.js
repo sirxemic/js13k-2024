@@ -1,5 +1,9 @@
 import { audioContext, audioDestination } from '../engine.js'
 import { ReverbIR } from '../assets/audio/reverbIR.js'
+import { createBiquadFilter } from '../audio/context.js'
+
+const eq = createBiquadFilter('peaking', 192, 2, -4)
+eq.connect(audioDestination)
 
 let reverbDestination
 export function setReverbDestination() {
@@ -8,15 +12,17 @@ export function setReverbDestination() {
   reverbDestination = audioContext.createGain()
   reverbDestination.gain.value = 0.7
   reverbDestination.connect(reverb)
-  reverb.connect(audioDestination)
+  reverb.connect(eq)
 }
 
-export function playSample(sample) {
+export function playSample(sample, reverb = true) {
   if (!reverbDestination) return
 
   let source = audioContext.createBufferSource()
   source.buffer = sample
-  source.connect(reverbDestination)
-  source.connect(audioDestination)
+  if (reverb) {
+    source.connect(reverbDestination)
+  }
+  source.connect(eq)
   source.start()
 }

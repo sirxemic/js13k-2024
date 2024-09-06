@@ -42,10 +42,11 @@
   }
 
   let envelope = [
-    [0, 0, 2],
-    [0.01, 0.5, 0.5],
-    [0.03, 0.4, 0.02],
-    [1, 0]
+    [0, 20],
+    [0.125, 17400],
+    [0.4, 3380, 0.5],
+    [0.625, 283, 2],
+    [1, 20]
   ]
 
   const canvas = document.querySelector('canvas')
@@ -57,14 +58,14 @@
 
   function render () {
     ctx.clearRect(0,0,canvas.width, canvas.height)
-    const sampler = new EnvelopeSampler(envelope)
+    const sampler = new EnvelopeSampler(envelope, false)
 
     ctx.beginPath()
     const W = canvas.width - margin * 2
     const H = canvas.height - margin * 2
     for (let i = 0; i < W; i++) {
       const x = margin + i
-      const y = canvas.height - margin - sampler.sample(i / (W - 1)) * H
+      const y = canvas.height - margin - sampler.sample(i / (W - 1)) / 5000 * H
       if (i === 0) ctx.moveTo(x, y)
       else ctx.lineTo(x, y)
     }

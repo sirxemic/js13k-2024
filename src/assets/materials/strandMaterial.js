@@ -10,7 +10,7 @@ vec4 shader() {
 `, `/*glsl*/
 out vec2 varyingScreenPos;
 void main() {
-  gl_Position = uniformProjection * uniformView * vec4(attributePosition, 1.0);
+  gl_Position = uniformProjection * vec4(attributePosition, 1.0);
   varyingScreenPos = gl_Position.xy;
 }
 `)

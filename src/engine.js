@@ -40,7 +40,6 @@ export function startGame(update, render, onResize) {
 
 // Graphics
 export let projectionMatrix = mat4()
-export let viewMatrix = mat4()
 
 export const canvas = document.querySelector('canvas')
 export const gl = canvas.getContext('webgl2', {
@@ -77,7 +76,6 @@ onResize()
 export function useMaterial(material) {
   material.shader.bind()
   material.shader.set4x4f('uniformProjection', projectionMatrix)
-  material.shader.set4x4f('uniformView', viewMatrix)
 }
 
 // Audio

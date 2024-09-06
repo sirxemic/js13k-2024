@@ -1,31 +1,64 @@
-import { oneTexture, plusTexture, threeTexture, twoTexture } from '../assets/textures/textTextures.js'
+import {
+  digitTextures,
+  equals13Texture,
+  minusTexture, multiplyTexture,
+  plusTexture
+} from '../assets/textures/textTextures.js'
 import { textMaterial } from '../assets/materials/textMaterial.js'
 import { add, vec3, vec3Lerp } from '../math/vec3.js'
 import { mat4 } from '../math/mat4.js'
 import { quad } from '../assets/geometries/quad.js'
 import { fillEffectRadius } from './shared.js'
-import { deltaTime, useMaterial } from '../engine.js'
+import { deltaTime, gl, useMaterial } from '../engine.js'
 import { saturate, smoothstep } from '../math/math.js'
+import { debugMaterial } from '../assets/materials/debugMaterial.js'
+
+const digitConfig = [
+  [0.65, 0], // 0
+  [0.55, 0.02], // 1
+  [0.65, 0.05], // 2
+  [0.67, 0.05], // 3
+  [0.65, 0], // 4
+  [0.65, 0], // 5
+  [0.65, 0], // 6
+  [0.65, 0], // 7
+  [0.64, 0], // 8
+  [0.65, 0], // 9
+]
 
 export class SymbolElement {
   constructor(value, size, position) {
-    switch (value) {
-      case 1:
-        this.texture = oneTexture
-        break
-      case 2:
-        this.texture = twoTexture
-        break
-      case 3:
-        this.texture = threeTexture
-        break
-      case '+':
-        this.texture = plusTexture
-        break
+    this.renderOffset = vec3()
+    if (typeof value === 'number') {
+      this.texture = digitTextures[value]
+      this.width = size * digitConfig[value][0]
+      this.height = size
+      this.renderOffset[0] = digitConfig[value][1] * size
     }
+    else {
+      switch (value) {
+        case '+':
+          this.texture = plusTexture
+          this.width = size * 0.8
+          this.height = size * 0.8
+          break
+        case '-':
+          this.texture = minusTexture
+          this.width = size * 0.8
+          this.height = size * 0.15
+          break
+        case '*':
+          this.texture = multiplyTexture
+          this.width = size * 0.65
+          this.height = size * 0.65
+          break
+        case '13':
+          this.texture = equals13Texture
+          break
+      }
+    }
+
     this.value = value
-    this.width = size / 5 * 3
-    this.height = size
     this.position = position
     this.size = size
     this.originalSize = size
@@ -36,6 +69,7 @@ export class SymbolElement {
     this.offsetTo = vec3([3 * (Math.random() - 0.5), 3 * (Math.random() - 0.5), 0])
     this.offsetTime = 0
     this.offsetTimeVel = Math.random() + 1
+    this.colorMerge = 1
   }
 
   update() {
@@ -45,7 +79,7 @@ export class SymbolElement {
     if (this.offsetTime >= 1) {
       this.offsetTime -= 1
       this.offsetFrom.set(this.offset)
-      this.offsetTo = vec3([3 * (Math.random() - 0.5), 3 * (Math.random() - 0.5), 0])
+      this.offsetTo = vec3([this.size * 0.1 * (Math.random() - 0.5), this.size * 0.1 * (Math.random() - 0.5), 0])
       this.offsetTimeVel = Math.random() + 1
     }
   }
@@ -56,13 +90,14 @@ export class SymbolElement {
     textMaterial.shader.set1f('uniformNegRadius', fillEffectRadius)
     textMaterial.shader.set3fv('uniformColor1', vec3([1,1,1]))
     textMaterial.shader.set3fv('uniformColor2', this.color || vec3([0,0,0]))
-    textMaterial.shader.set1f('uniformAlpha', this.alpha || 1)
+    textMaterial.shader.set1f('uniformAlpha', this.alpha ?? 1)
+    textMaterial.shader.set1f('uniformColorMerge', this.colorMerge)
     this.texture.bind()
     textMaterial.setModel(mat4([
       this.size * initScale, 0, 0, 0,
       0, this.size * initScale, 0, 0,
       0, 0, 1, 0,
-      ...add(vec3(), this.position, this.offset), 1
+      ...add(vec3(), add(vec3(), this.position, this.renderOffset), this.offset), 1
     ]))
     quad.draw()
 

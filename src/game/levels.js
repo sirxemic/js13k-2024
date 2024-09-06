@@ -11,12 +11,12 @@ import { Goal } from './goal.js'
 import { Tutorial } from './tutorial.js'
 
 export const levels = [
-
   () => getLevel([
     new SymbolElement(1, 50, vec3([VIEW_WIDTH / 2 - 40, 180, 0])),
     new SymbolElement(3, 50, vec3([VIEW_WIDTH / 2 + 40, 180, 0])),
-    new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 - 180, 180, 0])),
+    new SymbolElement('+', 25, vec3([VIEW_WIDTH / 2 - 180, 160, 0])),
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 180, 180, 0])),
+    new SymbolElement('+', 15, vec3([VIEW_WIDTH / 2 + 40, 330, 0])),
     new Title(),
     new StartArrow(),
     new Tutorial(),
@@ -37,12 +37,12 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new SymbolElement(1, 40, vec3([VIEW_WIDTH / 2 - 40, 180, 0])),
-    new SymbolElement(1, 40, vec3([VIEW_WIDTH / 2 + 150, 60, 0])),
-    new SymbolElement(3, 20, vec3([VIEW_WIDTH / 2 + 120, 160, 0])),
-    new SymbolElement(1, 20, vec3([VIEW_WIDTH / 2 + 140, 220, 0])),
-    new SymbolElement(3, 50, vec3([VIEW_WIDTH / 2 + 40, 230, 0])),
-    new SymbolElement(3, 50, vec3([VIEW_WIDTH / 2 - 120, 250, 0])),
+    new SymbolElement(1, 35, vec3([VIEW_WIDTH / 2 - 40, 180, 0])),
+    new SymbolElement(1, 25, vec3([VIEW_WIDTH / 2 + 150, 60, 0])),
+    new SymbolElement(3, 15, vec3([VIEW_WIDTH / 2 + 120, 160, 0])),
+    new SymbolElement(1, 15, vec3([VIEW_WIDTH / 2 + 140, 220, 0])),
+    new SymbolElement(3, 40, vec3([VIEW_WIDTH / 2 + 40, 230, 0])),
+    new SymbolElement(3, 40, vec3([VIEW_WIDTH / 2 - 120, 250, 0])),
     new SymbolElement('+', 30, vec3([VIEW_WIDTH / 2 - 150, 150, 0])),
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 170, 320, 0])),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2, 0])),
@@ -51,16 +51,15 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new SymbolElement(1, 20, vec3([VIEW_WIDTH / 2 - 150, 60, 0])),
-    new SymbolElement(1, 30, vec3([VIEW_WIDTH / 2 - 75, 60, 0])),
-    new SymbolElement(1, 50, vec3([VIEW_WIDTH / 2 + 45, 70, 0])),
-    new SymbolElement(1, 40, vec3([VIEW_WIDTH / 2 + 150, 60, 0])),
-    new SymbolElement('+', 20, vec3([100, 130, 0])),
-    new SymbolElement('+', 20, vec3([350, 130, 0])),
-    new SymbolElement(3, 20, vec3([VIEW_WIDTH / 2 - 150, 260, 0])),
-    new SymbolElement(3, 30, vec3([VIEW_WIDTH / 2 - 75, 260, 0])),
-    new SymbolElement(2, 50, vec3([VIEW_WIDTH / 2 + 45, 270, 0])),
-    new SymbolElement(3, 40, vec3([VIEW_WIDTH / 2 + 150, 260, 0])),
+    new SymbolElement(1, 20, vec3([VIEW_WIDTH / 2 - 160, 60, 0])),
+    new SymbolElement(1, 25, vec3([VIEW_WIDTH / 2 - 75, 60, 0])),
+    new SymbolElement(1, 40, vec3([VIEW_WIDTH / 2 + 25, 90, 0])),
+    new SymbolElement(1, 30, vec3([VIEW_WIDTH / 2 + 150, 60, 0])),
+    new SymbolElement('+', 20, vec3([140, 130, 0])),
+    new SymbolElement('+', 20, vec3([350, 140, 0])),
+    new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2, 270, 0])),
+    new SymbolElement(3, 30, vec3([VIEW_WIDTH / 2 + 100, 265, 0])),
+    new SymbolElement(3, 45, vec3([VIEW_WIDTH / 2 - 100, 250, 0])),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2, 0])),
     new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
     fadeIn()

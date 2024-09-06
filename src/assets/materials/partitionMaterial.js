@@ -12,7 +12,7 @@ vec4 shader() {
 `, `/*glsl*/
 out vec2 varyingUv;
 void main() {
-  gl_Position = uniformProjection * uniformView * vec4(attributePosition, 1.0);
+  gl_Position = uniformProjection * vec4(attributePosition, 1.0);
   varyingPosition = gl_Position.xyz;
 }
 `)

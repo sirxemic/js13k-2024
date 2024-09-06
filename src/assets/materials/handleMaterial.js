@@ -13,6 +13,6 @@ out vec2 varyingUv;
 void main() {
   varyingUv = attributePosition.xy;
   varyingPosition = vec3(uniformModel * vec4(attributePosition, 1.0));
-  gl_Position = uniformProjection * uniformView * vec4(varyingPosition, 1.0);
+  gl_Position = uniformProjection * vec4(varyingPosition, 1.0);
 }
 `)
