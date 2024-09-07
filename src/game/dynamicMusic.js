@@ -3,6 +3,7 @@ import { VIEW_HEIGHT } from '../engine.js'
 import { PluckSounds } from '../assets/audio/Pluck.js'
 import { distance, vec3 } from '../math/vec3.js'
 import { playSample } from './audio.js'
+import { PadSounds } from '../assets/audio/Pads.js'
 
 function getBand(position) {
   return Math.floor((position[1] - MIN_Y) / BAND_HEIGHT)
@@ -18,6 +19,10 @@ export function setPosition(pos) {
   }
   position = pos ? vec3(pos) : undefined
 }
+
+const padNotes = [
+  4, 1, 2, 0, 4, 1, 2, 3
+]
 
 const bassNotes = [
   4, 9, 1, 6, 2, 7, 0, 5, 4, 9, 1, 6, 2, 7, 3, 8
@@ -47,12 +52,16 @@ export function startMusic() {
   setInterval(() => {
     if (paused) return
 
+    if (tick % 256 >= 128 && tick % 16 === 0) {
+      const index = Math.floor(tick / 16) % padNotes.length
+      playSample(PadSounds[padNotes[index]])
+    }
     if (tick % 8 === 0) {
-      const bassIndex = Math.floor(tick / 8)
+      const bassIndex = Math.floor(tick / 8) % bassNotes.length
       playSample(PluckSounds[bassNotes[bassIndex]])
     }
 
-    const notes = tick >= 128 * 7 / 8 ? notes2 : notes1
+    const notes = tick % 128 >= 128 * 7 / 8 ? notes2 : notes1
 
     if (position && (tick % 16) % 3 !== 2) {
       const band = getBand(position)
@@ -75,7 +84,7 @@ export function startMusic() {
       }
     }
 
-    tick = (tick + 1) % 128
+    tick++
   }, 100)
 }
 

@@ -92,6 +92,7 @@ function getElements(equation, elements) {
     }
     const elementIndex = elements.findIndex(element => element.value + '' === valueToCheck)
     if (elementIndex === -1) {
+      result.forEach(el => el.useAsMultiply = false)
       elements.push(...result)
       return undefined
     }

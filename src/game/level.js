@@ -336,9 +336,6 @@ export function getLevel(entities) {
   function render() {
     partitioner.render()
     entities.forEach(entity => entity.render())
-    if (equals13Elements.length > 0) {
-      debugger
-    }
     equals13Elements.forEach(element => element.render())
     if (levelCompleteTime > 0) {
       fadeMaterial.shader.bind()

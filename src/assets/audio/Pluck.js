@@ -1,16 +1,13 @@
 import {
-  generateSound,
   applyEnvelope,
+  createAudioBuffer,
+  generateSound,
   getFrequencyDelta,
-  sampleTriangle,
-  createAudioBuffer
+  sampleTriangle
 } from '../../audio/utils.js'
 import { updateInitProgress } from '../../utils.js'
 import { bandPassFilter } from '../../audio/filters.js'
-
-function getFreq(note) {
-  return 220 * 2 ** (note / 12)
-}
+import { getFreq } from '../../generationUtils/audio.js'
 
 const freqs = [
   // Bass line notes
