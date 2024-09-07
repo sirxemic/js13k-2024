@@ -2,8 +2,10 @@ import { audioContext, audioDestination } from '../engine.js'
 import { ReverbIR } from '../assets/audio/reverbIR.js'
 import { createBiquadFilter } from '../audio/context.js'
 
-const eq = createBiquadFilter('peaking', 192, 2, -6)
-eq.connect(audioDestination)
+const eq1 = createBiquadFilter('peaking', 192, 2, 0)
+const eq2 = createBiquadFilter('highshelf', 5000, 2, 0)
+eq1.connect(eq2)
+eq2.connect(audioDestination)
 
 let reverbDestination
 export function setReverbDestination() {
@@ -12,7 +14,7 @@ export function setReverbDestination() {
   reverbDestination = audioContext.createGain()
   reverbDestination.gain.value = 0.7
   reverbDestination.connect(reverb)
-  reverb.connect(eq)
+  reverb.connect(eq1)
 }
 
 export function playSample(sample, reverb = true) {
@@ -23,6 +25,6 @@ export function playSample(sample, reverb = true) {
   if (reverb) {
     source.connect(reverbDestination)
   }
-  source.connect(eq)
+  source.connect(eq1)
   source.start()
 }

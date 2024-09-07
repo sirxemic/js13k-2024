@@ -22,7 +22,7 @@ export class Partitioner {
     function getPartition(perimeterVertices, color, reverse) {
       const vertexBuffer = new VertexBuffer()
       const points = [
-        ...strand.strandPositions,
+        ...strand.strandPositions.slice(2),
         vec3([
           goal.position[0] + 500,
           goal.position[1],

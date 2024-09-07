@@ -1,6 +1,6 @@
 import {
   audioContext,
-  deltaTime,
+  deltaTime, lastPointerPosition,
   pointerPosition,
   VIEW_HEIGHT,
   VIEW_WIDTH
@@ -80,9 +80,6 @@ export function getLevel(entities) {
       entities.splice(entities.indexOf(title), 1)
       title = undefined
     }
-
-    await audioContext.resume()
-    startMusic()
   }
 
   function stopDrag() {
@@ -93,7 +90,6 @@ export function getLevel(entities) {
     startArrow?.handleFinish()
 
     setLevelState(STATE_FINISH_ANIMATION)
-    strand.setFinished(goal.position)
     finishAnimationT = 0
 
     partitioner.createPartitions()
@@ -112,37 +108,27 @@ export function getLevel(entities) {
         stopDrag()
       }
       else {
-        add(strand.handleTarget, subtract(vec3(), pointerPosition, strand.dragStart), strand.handleAtDragStart)
-        if (distance(strand.handleTarget, goal.position) > HANDLE_SIZE * 2) {
-          strand.handleTarget[0] = clamp(strand.handleTarget[0], HANDLE_SIZE, VIEW_WIDTH - HANDLE_SIZE)
-          strand.handleTarget[1] = clamp(strand.handleTarget[1], HANDLE_SIZE, VIEW_HEIGHT - HANDLE_SIZE)
-        }
-        else if (strand.handleTarget[0] > VIEW_WIDTH) {
+        if (lastPointerPosition) strand.move(subtract(vec3(), pointerPosition, lastPointerPosition))
+        if (distance(strand.handlePosition, goal.position) < HANDLE_SIZE) {
           setFinished()
-          return
         }
       }
     }
     else if (pointerPosition) {
       startDrag()
     }
-
-    strand.handlePosition.set(strand.handleTarget)
-    updateStrand()
   }
 
   function finishUpdate() {
     if (finishAnimationT === 0) {
       strand.undoUntil = strand.strandPositions.at(-2)
     }
-    strand.handleTarget[0] = goal.position[0] + (finishAnimationT + 1) * finishAnimationT * 100
-    strand.handleTarget[1] = goal.position[1]
-
-    const factor = 1 - Math.exp(-deltaTime * 20)
-    addScaled(strand.handlePosition, strand.handlePosition, subtract(vec3(), strand.handleTarget, strand.handlePosition), factor)
-
-    updateStrand()
-
+    const target = vec3([
+      goal.position[0] + (finishAnimationT + 1) * finishAnimationT * 100,
+      goal.position[1],
+      0
+    ])
+    strand.move(subtract(vec3(), target, strand.handlePosition), false)
     finishAnimationT += deltaTime
 
     if (finishAnimationT > 1) {
@@ -288,20 +274,8 @@ export function getLevel(entities) {
       }
     }
 
-    if (undoFinishTime < 1) {
-      const offScreen = vec3([goal.position[0] + 500, goal.position[1], goal.position[2]])
-      if (t < 0.5) {
-        addScaled(strand.handlePosition, offScreen, subtract(vec3(), goal.position, offScreen), t * 2)
-        addScaled(strand.handleTarget, offScreen, subtract(vec3(), goal.position, offScreen), t * 2)
-      }
-      else {
-        const t2 = (t - 0.5) * 2
-        addScaled(strand.handleTarget, goal.position, subtract(vec3(), strand.undoUntil, goal.position), t2)
-        strand.handlePosition.set(strand.handleTarget)
-      }
-      updateStrand()
-    }
-    else {
+    strand.rewind()
+    if (undoFinishTime >= 1 && distance(strand.handlePosition, goal.position) > HANDLE_SIZE * 1.5) {
       finishAnimationT = 0
       resetShowingEquationsTime()
       elements.forEach(element => {
@@ -357,45 +331,6 @@ export function getLevel(entities) {
     }
     setFillEffectRadius(finishAnimationT * finishAnimationT)
     entities.forEach(ent => ent.update?.())
-  }
-
-  function updateStrand() {
-    const previousPosition = strand.strandPositions.at(-1)
-    let distanceToPrev = distance(strand.handlePosition, previousPosition)
-    if (distanceToPrev > HANDLE_SIZE) {
-      const vectorToPrev = vec3Normalize(subtract(vec3(), strand.handlePosition, previousPosition))
-      for (let x = HANDLE_SIZE; x < distanceToPrev; x += HANDLE_SIZE) {
-        const point = addScaled(vec3(), previousPosition, vectorToPrev, x)
-
-        if (strand.strandPositions.at(-2) && distance(point, strand.strandPositions.at(-2)) <= HANDLE_SIZE) {
-          strand.strandPositions.pop()
-        }
-        else {
-          const lastPoint = strand.strandPositions.at(-1)
-          if (
-            elements.some(element => {
-              return (
-                Math.abs(point[0] - element.position[0]) < element.width
-                && Math.abs(point[1] - element.position[1]) < element.height
-              )
-            })
-            ||
-            strand.strandPositions.some(point2 => {
-              return point2 !== lastPoint && distance(point, point2) <= HANDLE_SIZE
-            })
-          ) {
-            strand.handlePosition.set(lastPoint)
-            strand.handleTarget.set(lastPoint)
-            return
-          }
-          strand.strandPositions.push(point)
-          strand.vertexBuffer.updateVertexData(
-            point,
-            strand.strandPositions.length * 3 * 4
-          )
-        }
-      }
-    }
   }
 
   function render() {

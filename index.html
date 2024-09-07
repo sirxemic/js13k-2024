@@ -8,15 +8,9 @@
   body {
     margin: 0;
     overflow: hidden;
-    font-family: -apple-system, system-ui;
-    font-weight: 900;
-    color: #fff;
-    font-size: 2vmax;
-    cursor: default;
     background: #000;
     user-select: none;
     -webkit-user-select: none;
-    text-align: center;
   }
 
   canvas {
@@ -26,6 +20,9 @@
   }
 
   .loading {
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 2vw;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -34,15 +31,6 @@
     position: fixed;
     inset: 0;
     padding: 1em;
-    background: #0003;
-  }
-
-  .loading {
-    background: #000;
-  }
-
-  [hidden] {
-    display: none
   }
 </style>
 </head>

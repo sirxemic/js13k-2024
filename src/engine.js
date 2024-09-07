@@ -31,6 +31,8 @@ export function startGame(update, render, onResize) {
     update()
     render()
 
+    lastPointerPosition = pointerPosition
+
     previousT = t
     raf = window.requestAnimationFrame(tick)
   }
@@ -98,13 +100,11 @@ document.body.addEventListener('pointerdown', (e) => {
 document.body.addEventListener('pointermove', (e) => {
   if (!pointerPosition) return
 
-  lastPointerPosition = pointerPosition
   pointerPosition = getPointerPosition(e)
   shiftDown = e.shiftKey
 })
 
 document.body.addEventListener('pointerup', () => {
-  lastPointerPosition = pointerPosition
   pointerPosition = undefined
   shiftDown = false
 })
