@@ -11,7 +11,9 @@ import { quad } from '../assets/geometries/quad.js'
 import { fillEffectRadius } from './shared.js'
 import { deltaTime, gl, useMaterial } from '../engine.js'
 import { saturate, smoothstep } from '../math/math.js'
+// <dev-only>
 import { debugMaterial } from '../assets/materials/debugMaterial.js'
+// </dev-only>
 
 const digitConfig = [
   [0.65, 0], // 0
@@ -58,6 +60,7 @@ export class SymbolElement {
       }
     }
 
+    this.rotation = 0
     this.value = value
     this.position = position
     this.size = size
@@ -93,15 +96,19 @@ export class SymbolElement {
     textMaterial.shader.set1f('uniformAlpha', this.alpha ?? 1)
     textMaterial.shader.set1f('uniformColorMerge', this.colorMerge)
     this.texture.bind()
+    const sin = Math.sin(this.rotation) * this.size * initScale
+    const cos = Math.cos(this.rotation) * this.size * initScale
+
     textMaterial.setModel(mat4([
-      this.size * initScale, 0, 0, 0,
-      0, this.size * initScale, 0, 0,
+      cos, sin, 0, 0,
+      -sin, cos, 0, 0,
       0, 0, 1, 0,
       ...add(vec3(), add(vec3(), this.position, this.renderOffset), this.offset), 1
     ]))
     quad.draw()
 
     // Debugging
+    // <dev-only>
     // useMaterial(debugMaterial)
     // debugMaterial.setModel(mat4([
     //   this.width, 0, 0, 0,
@@ -110,5 +117,6 @@ export class SymbolElement {
     //   ...this.position, 1
     // ]))
     // quad.draw(gl.LINE_STRIP)
+    // </dev-only>
   }
 }

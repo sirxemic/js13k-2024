@@ -88,9 +88,11 @@ audioDestination.connect(audioContext.destination)
 // Input
 export let pointerPosition
 export let lastPointerPosition
+export let shiftDown
 
 document.body.addEventListener('pointerdown', (e) => {
   pointerPosition = getPointerPosition(e)
+  shiftDown = e.shiftKey
 })
 
 document.body.addEventListener('pointermove', (e) => {
@@ -98,11 +100,13 @@ document.body.addEventListener('pointermove', (e) => {
 
   lastPointerPosition = pointerPosition
   pointerPosition = getPointerPosition(e)
+  shiftDown = e.shiftKey
 })
 
 document.body.addEventListener('pointerup', () => {
   lastPointerPosition = pointerPosition
   pointerPosition = undefined
+  shiftDown = false
 })
 
 function getPointerPosition(e) {

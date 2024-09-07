@@ -47,30 +47,8 @@ let equations = [
   '4*2+4+1',
   '4*2+3+2',
   '4*2+2+2+1',
-  '3*2+4+3',
-  '6+4+2+1',
-  '6+4+1+1+1',
-  '6+3+2+2',
-  '6+2+2+2+1',
-  '5+5+3',
-  '5+5+2+1',
-  '5+5+1+1+1',
-  '5+4+4',
-  '5+4+2+2',
-  '5+3+3+2',
-  '5+2+2+2+2',
-  '4+4+4+1',
-  '4+4+3+2',
-  '4+4+2+2+1',
-  '4+3+3+3',
-  '4+3+2+2+2',
-  '4+2+2+2+2+1',
-  '3+3+3+2+2',
-  '3+2+2+2+2+2',
-  '2+2+2+2+2+2+1',
-
-
-
+  '4+3+3*2',
+  '5*2+3',
   '14-1',
   '15-2',
   '15-1-1',
@@ -108,11 +86,16 @@ export function getEquations(partitionElements) {
 function getElements(equation, elements) {
   const result = []
   for (const part of equation) {
-    const elementIndex = elements.findIndex(element => element.value + '' === part)
+    let valueToCheck = part
+    if (part === '*') {
+      valueToCheck = '+'
+    }
+    const elementIndex = elements.findIndex(element => element.value + '' === valueToCheck)
     if (elementIndex === -1) {
       elements.push(...result)
       return undefined
     }
+    elements[elementIndex].useAsMultiply = part === '*'
     result.push(...elements.splice(elementIndex, 1))
   }
   return result

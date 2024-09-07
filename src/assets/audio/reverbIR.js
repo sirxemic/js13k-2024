@@ -27,14 +27,14 @@ export function generateReverbIR () {
   ReverbIR = createAudioBuffer([
     applyEnvelope(
       applyEnvelope(
-        bandPassFilter(generateSound(3, sampleNoise), [[0, 1000], [0.5, 120], [0.7, 1500]], 1),
+        bandPassFilter(generateSound(3, sampleNoise), [[0, 1000], [0.5, 420], [0.7, 1500]], 1),
         volumeEnvelope1
       ),
       globalEnvelope
     ),
     applyEnvelope(
       applyEnvelope(
-        bandPassFilter(generateSound(3, sampleNoise), [[0, 1000], [0.5, 120], [0.7, 1500]], 1),
+        bandPassFilter(generateSound(3, sampleNoise), [[0, 1000], [0.5, 420], [0.7, 1500]], 1),
         volumeEnvelope2
       ),
       globalEnvelope

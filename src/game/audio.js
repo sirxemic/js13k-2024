@@ -2,7 +2,7 @@ import { audioContext, audioDestination } from '../engine.js'
 import { ReverbIR } from '../assets/audio/reverbIR.js'
 import { createBiquadFilter } from '../audio/context.js'
 
-const eq = createBiquadFilter('peaking', 192, 2, -4)
+const eq = createBiquadFilter('peaking', 192, 2, -6)
 eq.connect(audioDestination)
 
 let reverbDestination

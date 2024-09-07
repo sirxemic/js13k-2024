@@ -33,7 +33,7 @@ import {
   updateShowingEquationsTime,
   resetUndoFinishTime,
   updateUndoFinishTime,
-  undoFinishTime, STATE_FINISH_EQUATION, setShowingEquationsTimeScale
+  undoFinishTime, STATE_FINISH_EQUATION, setShowingEquationsTimeScale, STATE_LEVEL_COMPLETE
 } from './shared.js'
 import { Strand } from './strand.js'
 import { Goal } from './goal.js'
@@ -45,6 +45,8 @@ import { playSample } from './audio.js'
 import { ErrorSound } from '../assets/audio/ErrorSound.js'
 import { playVictorySound } from './playVictorySound.js'
 import { startMusic } from './dynamicMusic.js'
+import { fadeMaterial } from '../assets/materials/fadeMaterial.js'
+import { quad } from '../assets/geometries/quad.js'
 
 export function getLevel(entities) {
   const elements = entities.filter(ent => ent instanceof SymbolElement)
@@ -147,63 +149,61 @@ export function getLevel(entities) {
       if (elements[0].partition === elements[1].partition && tutorial) {
         tutorial.show = true
       }
+      checkConditionMet()
+    }
+  }
+
+  function checkConditionMet() {
+    const CHAR_WIDTH = 70
+    const CHAR_HEIGHT = 80
+    let partitionElements = partitions.map(() => [])
+    for (const element of elements) {
+      partitionElements[element.partition].push(element)
+      element.targetSize = 0
+      element.targetPosition = element.position
+    }
+    equations = getEquations(partitionElements)
+    hasEquations = equations.length > 0
+
+    if (hasEquations) {
+      playSample(ErrorSound)
+      for (let i = 0; i < equations.length; i++) {
+        for (let j = 0; j < equations[i].length; j++) {
+          equations[i][j].targetSize = 40
+          equations[i][j].targetPosition = vec3([
+            VIEW_WIDTH / 2 + (-(equations[i].length - 1) / 2 + j) * CHAR_WIDTH,
+            VIEW_HEIGHT / 2 + (-(equations.length - 1) / 2 + i) * CHAR_HEIGHT,
+            0
+          ])
+        }
+      }
+      setShowingEquationsTimeScale(equations.some(eq => eq.length > 2) ? 4 : 2)
       resetShowingEquationsTime()
       setLevelState(STATE_MAKE_EQUATION)
+    }
+    else {
+      setLevelState(STATE_LEVEL_COMPLETE)
     }
   }
 
   function makeEquationUpdate() {
-    const CHAR_WIDTH = 70
-    const CHAR_HEIGHT = 80
-    if (showingEquationsTime === 0) {
-      let partitionElements = partitions.map(() => [])
-      for (const element of elements) {
-        partitionElements[element.partition].push(element)
-        element.targetSize = 0
-        element.targetPosition = element.position
-      }
-      equations = getEquations(partitionElements)
-      hasEquations = equations.length > 0
-
-      if (hasEquations) {
-        playSample(ErrorSound)
-        for (let i = 0; i < equations.length; i++) {
-          for (let j = 0; j < equations[i].length; j++) {
-            equations[i][j].targetSize = 40
-            equations[i][j].targetPosition = vec3([
-              VIEW_WIDTH / 2 + (-(equations[i].length - 1) / 2 + j) * CHAR_WIDTH,
-              VIEW_HEIGHT / 2 + (-(equations.length - 1) / 2 + i) * CHAR_HEIGHT,
-              0
-            ])
-          }
-        }
+    const t = smoothstep(0, 1, showingEquationsTime)
+    for (const element of elements) {
+      addScaled(element.position, element.originalPosition, subtract(vec3(), element.targetPosition, element.originalPosition), t)
+      addScaled(element.position, element.position, vec3([Math.random() * 4 - 2, 0, 0]), 1 - t)
+      element.size = element.originalSize + (element.targetSize - element.originalSize) * t
+      if (element.useAsMultiply) {
+        element.rotation = t * 0.25 * Math.PI
       }
       else {
-        playVictorySound()
+        element.rotation = 0
       }
-
-      setShowingEquationsTimeScale(equations.some(eq => eq.length > 2) ? 4 : 2)
     }
-    else {
-      const t = smoothstep(0, 1, showingEquationsTime)
-      for (const element of elements) {
-        addScaled(element.position, element.originalPosition, subtract(vec3(), element.targetPosition, element.originalPosition), t)
-        if (element.targetSize !== 0) {
-          addScaled(element.position, element.position, vec3([Math.random() * 4 - 2, 0, 0]), 1 - t)
-        }
-        element.size = element.originalSize + (element.targetSize - element.originalSize) * t
-      }
 
-      if (showingEquationsTime > 1.2) {
-        if (hasEquations) {
-          setLevelState(STATE_FINISH_EQUATION)
-          initFinishEquation()
-        }
-        else {
-          nextLevel()
-        }
-        return
-      }
+    if (showingEquationsTime > 1.2) {
+      setLevelState(STATE_FINISH_EQUATION)
+      initFinishEquation()
+      return
     }
 
     updateShowingEquationsTime()
@@ -279,6 +279,13 @@ export function getLevel(entities) {
       vec3Lerp(element.position, element.animationPositionFrom, element.originalPosition, t)
       element.size = element.targetSize + (element.originalSize - element.targetSize) * t
       element.colorMerge = 1 - t
+
+      if (element.useAsMultiply) {
+        element.rotation = (1 - t) * 0.25 * Math.PI
+      }
+      else {
+        element.rotation = 0
+      }
     }
 
     if (undoFinishTime < 1) {
@@ -306,6 +313,24 @@ export function getLevel(entities) {
     }
   }
 
+  let levelCompleteTime = 0
+  function levelCompleteUpdate() {
+    if (levelCompleteTime === 0) {
+      playVictorySound()
+    }
+
+    levelCompleteTime += deltaTime
+
+    const t = smoothstep(1, 0, levelCompleteTime * 1.2)
+    for (const element of elements) {
+      element.size = element.originalSize * t
+    }
+
+    if (levelCompleteTime > 1) {
+      nextLevel()
+    }
+  }
+
   function update() {
     switch (levelState) {
       case STATE_INTRO:
@@ -325,6 +350,9 @@ export function getLevel(entities) {
         break
       case STATE_UNDO_FINISH:
         backToPlayingUpdate()
+        break
+      case STATE_LEVEL_COMPLETE:
+        levelCompleteUpdate()
         break
     }
     setFillEffectRadius(finishAnimationT * finishAnimationT)
@@ -377,6 +405,11 @@ export function getLevel(entities) {
       debugger
     }
     equals13Elements.forEach(element => element.render())
+    if (levelCompleteTime > 0) {
+      fadeMaterial.shader.bind()
+      fadeMaterial.shader.set1f('uniformAlpha', levelCompleteTime)
+      quad.draw()
+    }
   }
 
   return {
