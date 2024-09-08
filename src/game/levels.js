@@ -9,6 +9,22 @@ import { Title } from './title.js'
 import { Strand } from './strand.js'
 import { Goal } from './goal.js'
 import { Tutorial } from './tutorial.js'
+import { Partitioner } from './partitioner.js'
+
+const COLORS = [
+  vec3([1, 0.2, 0.2]),
+  vec3([0.1, 0.1, 1]),
+  vec3([0.5, 1, 0.2]),
+  vec3([0.1, 0.2, 1]),
+  vec3([1, 1, 0.2])
+]
+
+function colors(index) {
+  return [
+    COLORS[(index * 2) % COLORS.length],
+    COLORS[(index * 2 + 1) % COLORS.length]
+  ]
+}
 
 export const levels = [
   () => getLevel([
@@ -21,7 +37,8 @@ export const levels = [
     new StartArrow(),
     new Tutorial(),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2 + 70, 0])),
-    new Strand(vec3([10, VIEW_HEIGHT / 2 + 70, 0]))
+    new Strand(vec3([10, VIEW_HEIGHT / 2 + 70, 0])),
+    new Partitioner(colors(0))
   ]),
 
   () => getLevel([
@@ -33,6 +50,7 @@ export const levels = [
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 180, 180, 0])),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2, 0])),
     new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Partitioner(colors(1)),
     fadeIn()
   ]),
 
@@ -47,6 +65,7 @@ export const levels = [
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 170, 320, 0])),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2, 0])),
     new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Partitioner(colors(2)),
     fadeIn()
   ]),
 
@@ -62,6 +81,7 @@ export const levels = [
     new SymbolElement(3, 45, vec3([VIEW_WIDTH / 2 - 100, 250, 0])),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2, 0])),
     new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Partitioner(colors(3)),
     fadeIn()
   ]),
 
@@ -76,6 +96,7 @@ export const levels = [
     new SymbolElement(1, 30, vec3([240+140+20, 200, 0])),
     new Goal(vec3([VIEW_WIDTH, VIEW_HEIGHT / 2 + 80, 0])),
     new Strand(vec3([10, 50, 0])),
+    new Partitioner(colors(4)),
     fadeIn()
   ]),
 

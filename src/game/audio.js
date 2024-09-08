@@ -18,7 +18,7 @@ export function setReverbDestination() {
 }
 
 export function playSample(sample, reverb = true) {
-  if (!reverbDestination) return
+  if (!reverbDestination || audioContext.state !== 'running') return
 
   let source = audioContext.createBufferSource()
   source.buffer = sample

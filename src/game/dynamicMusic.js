@@ -1,5 +1,5 @@
 import { HANDLE_SIZE } from './shared.js'
-import { VIEW_HEIGHT } from '../engine.js'
+import { audioContext, VIEW_HEIGHT } from '../engine.js'
 import { PluckSounds } from '../assets/audio/Pluck.js'
 import { distance, vec3 } from '../math/vec3.js'
 import { playSample } from './audio.js'
@@ -50,7 +50,7 @@ export function startMusic() {
   }
   started = true
   setInterval(() => {
-    if (paused) return
+    if (paused || audioContext.state !== 'running') return
 
     if (tick % 256 >= 128 && tick % 16 === 0) {
       const index = Math.floor(tick / 16) % padNotes.length

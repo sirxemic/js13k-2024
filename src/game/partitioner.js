@@ -3,21 +3,28 @@ import { vec3 } from '../math/vec3.js'
 import { IndexBuffer } from '../engine/graphics/IndexBuffer.js'
 import { triangulate } from './triangulate.js'
 import {
-  PARTITION_COLORS,
   elements,
   fillEffectRadius,
-  goal,
+  goal, HANDLE_SIZE,
   partitions,
   setPartitions,
   showingEquationsTime,
   strand
 } from './shared.js'
-import { canvas, useMaterial, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_MARGIN_Y, VIEW_WIDTH } from '../engine.js'
+import { canvas, deltaTime, gl, useMaterial, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_MARGIN_Y, VIEW_WIDTH } from '../engine.js'
 import { getPolygonIntersections } from './getPolygonIntersections.js'
 import { partitionMaterial } from '../assets/materials/partitionMaterial.js'
 import { smoothstep } from '../math/math.js'
+import { previewColorsMaterial } from '../assets/materials/previewColorsMaterial.js'
+import { teethThing } from '../assets/geometries/teethThing.js'
+import { mat4 } from '../math/mat4.js'
 
 export class Partitioner {
+  constructor(colors) {
+    this.colors = colors.map(c => vec3(c))
+    this.previewOffset = 0
+  }
+
   createPartitions() {
     function getPartition(perimeterVertices, color, reverse) {
       const vertexBuffer = new VertexBuffer()
@@ -62,7 +69,7 @@ export class Partitioner {
           0
         ]),
         vec3([-VIEW_MARGIN_X, strand.startPosition[1], 0])
-      ], PARTITION_COLORS[0]),
+      ], this.colors[0]),
 
       getPartition([
         vec3([
@@ -76,7 +83,7 @@ export class Partitioner {
           0
         ]),
         vec3([-VIEW_MARGIN_X, strand.startPosition[1], 0])
-      ], PARTITION_COLORS[1], true)
+      ], this.colors[1], true)
     ])
 
     for (const element of elements) {
@@ -101,8 +108,12 @@ export class Partitioner {
       return vec3([0.5, 0.5, 0.5])
     }
     else {
-      return PARTITION_COLORS[(partitionIndex + 1) % partitions.length]
+      return this.colors[(partitionIndex + 1) % partitions.length]
     }
+  }
+
+  slidePreviewStart() {
+    this.previewOffset = -VIEW_MARGIN_X
   }
 
   render() {
@@ -116,5 +127,30 @@ export class Partitioner {
         partition.vertexBuffer.draw()
       })
     }
+
+    this.previewOffset *= Math.exp(-5 * deltaTime)
+
+    useMaterial(previewColorsMaterial)
+      .setModel(mat4([
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        this.previewOffset, 0, 0, 1
+      ]))
+      .set3fv('uniformColor1', this.colors[0])
+      .set3fv('uniformColor2', this.colors[1])
+      .set1f('uniformFade', 1 - smoothstep(0, 1, showingEquationsTime))
+      .set1f('uniformSplitY', strand.strandPositions[0][1])
+    teethThing.draw(gl.TRIANGLE_FAN)
+
+    previewColorsMaterial.shader
+      .setModel(mat4([
+        -1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        VIEW_WIDTH + HANDLE_SIZE - this.previewOffset, 0, 0, 1
+      ]))
+      .set1f('uniformSplitY', goal.pos[1])
+    teethThing.draw(gl.TRIANGLE_FAN)
   }
 }

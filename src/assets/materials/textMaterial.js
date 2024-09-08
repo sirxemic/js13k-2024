@@ -8,7 +8,7 @@ uniform vec3 uniformColor2;
 uniform float uniformAlpha;
 uniform float uniformColorMerge;
 vec4 shader() {
-  vec3 c = uniformNegRadius * 2.0 > length(varyingPosition.xy) ? uniformColor2 : uniformColor1;
+  vec3 c = (1.0 - uniformNegRadius) * 2.0 < abs(varyingPosition.x) ? uniformColor2 : uniformColor1;
   c = mix(uniformColor1, c, uniformColorMerge);
   float a = texture(uniformTextures[0], varyingUv).a * uniformAlpha;
   return vec4(c, a);

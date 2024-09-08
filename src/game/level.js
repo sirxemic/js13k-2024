@@ -1,7 +1,7 @@
 import {
   deltaTime, lastPointerPosition,
   pointerPosition,
-  VIEW_HEIGHT,
+  VIEW_HEIGHT, VIEW_MARGIN_X,
   VIEW_WIDTH
 } from '../engine.js'
 import { addScaled, distance, subtract, vec3, vec3Lerp } from '../math/vec3.js'
@@ -47,6 +47,14 @@ import { fadeMaterial } from '../assets/materials/fadeMaterial.js'
 import { quad } from '../assets/geometries/quad.js'
 import { Stars } from './stars.js'
 
+function pluck(array, condition) {
+  const index = array.findIndex(condition)
+  if (index < 0) {
+    return
+  }
+  return array.splice(index, 1)[0]
+}
+
 export function getLevel(entities) {
   const elements = entities.filter(ent => ent instanceof SymbolElement)
   const strand = entities.find(ent => ent instanceof Strand)
@@ -56,7 +64,7 @@ export function getLevel(entities) {
   let title = entities.find(ent => ent instanceof Title)
   let star
 
-  const partitioner = new Partitioner()
+  const partitioner = pluck(entities, ent => ent instanceof Partitioner)
   let equals13Elements = []
   let equations
 
@@ -257,6 +265,9 @@ export function getLevel(entities) {
     if (showingEquationsTime >= duration) {
       setElementsAnimationPositionFrom()
       resetUndoFinishTime()
+      resetShowingEquationsTime()
+      setPartitions(undefined)
+      partitioner.slidePreviewStart()
       setLevelState(STATE_UNDO_FINISH)
     }
   }
@@ -293,7 +304,6 @@ export function getLevel(entities) {
         element.colorMerge = 1
         element.color = undefined
       })
-      setPartitions(undefined)
       setLevelState(STATE_PLAYING)
     }
   }
