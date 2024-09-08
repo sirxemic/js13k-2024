@@ -5,6 +5,7 @@ import { SubShader } from './Subshader.js'
 const common = {
   fSSC0: `/*glsl*/
 precision highp float;
+precision highp sampler2D;
 
 in vec3 varyingPosition;
 out vec4 o;
