@@ -12,7 +12,7 @@ import {
   showingEquationsTime,
   strand
 } from './shared.js'
-import { useMaterial, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_MARGIN_Y, VIEW_WIDTH } from '../engine.js'
+import { canvas, useMaterial, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_MARGIN_Y, VIEW_WIDTH } from '../engine.js'
 import { getPolygonIntersections } from './getPolygonIntersections.js'
 import { partitionMaterial } from '../assets/materials/partitionMaterial.js'
 import { smoothstep } from '../math/math.js'
@@ -22,7 +22,7 @@ export class Partitioner {
     function getPartition(perimeterVertices, color, reverse) {
       const vertexBuffer = new VertexBuffer()
       const points = [
-        ...strand.strandPositions.slice(2),
+        ...strand.strandPositions.slice(1),
         vec3([
           goal.position[0] + 500,
           goal.position[1],
@@ -110,6 +110,7 @@ export class Partitioner {
       useMaterial(partitionMaterial)
         .set1f('uniformNegRadius', fillEffectRadius)
         .set1f('uniformFade', 1 - smoothstep(0, 1, showingEquationsTime))
+        .set1f('uniformAspectRatio', canvas.width / canvas.height)
       partitions.forEach(partition => {
         partitionMaterial.shader.set3fv('uniformColor', partition.color)
         partition.vertexBuffer.draw()

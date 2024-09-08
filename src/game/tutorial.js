@@ -1,5 +1,5 @@
 import { VertexBuffer } from '../engine/graphics/VertexBuffer.js'
-import { gl, useMaterial, VIEW_HEIGHT, VIEW_WIDTH } from '../engine.js'
+import { canvas, gl, useMaterial, VIEW_HEIGHT, VIEW_WIDTH } from '../engine.js'
 import { strandMaterial } from '../assets/materials/strandMaterial.js'
 import { mat4 } from '../math/mat4.js'
 import { fillEffectRadius, strand } from './shared.js'
@@ -42,6 +42,7 @@ export class Tutorial {
     useMaterial(strandMaterial)
       .setModel(mat4())
       .set1f('uniformNegRadius', fillEffectRadius)
+      .set1f('uniformAspectRatio', canvas.width / canvas.height)
     this.vertexBuffer.draw(gl.LINES)
   }
 }

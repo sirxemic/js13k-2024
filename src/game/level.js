@@ -1,12 +1,11 @@
 import {
-  audioContext,
   deltaTime, lastPointerPosition,
   pointerPosition,
   VIEW_HEIGHT,
   VIEW_WIDTH
 } from '../engine.js'
-import { add, addScaled, distance, subtract, vec3, vec3Lerp, vec3Normalize } from '../math/vec3.js'
-import { clamp, saturate, smoothstep } from '../math/math.js'
+import { addScaled, distance, subtract, vec3, vec3Lerp } from '../math/vec3.js'
+import { saturate, smoothstep } from '../math/math.js'
 import { getEquations } from './getEquations.js'
 import { nextLevel } from './currentLevel.js'
 import { SymbolElement } from './symbolElement.js'
@@ -44,9 +43,9 @@ import { Tutorial } from './tutorial.js'
 import { playSample } from './audio.js'
 import { ErrorSound } from '../assets/audio/ErrorSound.js'
 import { playVictorySound } from './playVictorySound.js'
-import { startMusic } from './dynamicMusic.js'
 import { fadeMaterial } from '../assets/materials/fadeMaterial.js'
 import { quad } from '../assets/geometries/quad.js'
+import { Stars } from './stars.js'
 
 export function getLevel(entities) {
   const elements = entities.filter(ent => ent instanceof SymbolElement)
@@ -55,6 +54,7 @@ export function getLevel(entities) {
   const startArrow = entities.find(ent => ent instanceof StartArrow)
   const tutorial = entities.find(ent => ent instanceof Tutorial)
   let title = entities.find(ent => ent instanceof Title)
+  let star
 
   const partitioner = new Partitioner()
   let equals13Elements = []
@@ -91,8 +91,6 @@ export function getLevel(entities) {
 
     setLevelState(STATE_FINISH_ANIMATION)
     finishAnimationT = 0
-
-    partitioner.createPartitions()
   }
 
   function introUpdate() {
@@ -120,16 +118,22 @@ export function getLevel(entities) {
   }
 
   function finishUpdate() {
-    if (finishAnimationT === 0) {
-      strand.undoUntil = strand.strandPositions.at(-2)
-    }
     const target = vec3([
       goal.position[0] + (finishAnimationT + 1) * finishAnimationT * 100,
       goal.position[1],
       0
     ])
-    strand.move(subtract(vec3(), target, strand.handlePosition), false)
+    if (target[0] > strand.handlePosition[0]) {
+      strand.move(subtract(vec3(), target, strand.handlePosition), false)
+    }
+
+    if (finishAnimationT === 0) {
+      partitioner.createPartitions()
+    }
+
     finishAnimationT += deltaTime
+
+    strand.alpha = goal.alpha = smoothstep(1, 0.9, finishAnimationT)
 
     if (finishAnimationT > 1) {
       if (elements[0].partition === elements[1].partition && tutorial) {
@@ -274,8 +278,15 @@ export function getLevel(entities) {
       }
     }
 
+    strand.alpha = undoFinishTime
+    goal.alpha = undoFinishTime
+
     strand.rewind()
-    if (undoFinishTime >= 1 && distance(strand.handlePosition, goal.position) > HANDLE_SIZE * 1.5) {
+    if (
+      undoFinishTime >= 1 &&
+      strand.handlePosition[0] < goal.position[0] &&
+      distance(strand.handlePosition, goal.position) > HANDLE_SIZE * 3
+    ) {
       finishAnimationT = 0
       resetShowingEquationsTime()
       elements.forEach(element => {
@@ -291,6 +302,7 @@ export function getLevel(entities) {
   function levelCompleteUpdate() {
     if (levelCompleteTime === 0) {
       playVictorySound()
+      star = new Stars()
     }
 
     levelCompleteTime += deltaTime
@@ -329,8 +341,9 @@ export function getLevel(entities) {
         levelCompleteUpdate()
         break
     }
-    setFillEffectRadius(finishAnimationT * finishAnimationT)
+    setFillEffectRadius(2 * finishAnimationT * finishAnimationT)
     entities.forEach(ent => ent.update?.())
+    star?.update()
   }
 
   function render() {
@@ -338,11 +351,13 @@ export function getLevel(entities) {
     entities.forEach(entity => entity.render())
     equals13Elements.forEach(element => element.render())
     if (levelCompleteTime > 0) {
+      const alpha = smoothstep(0.5, 1, levelCompleteTime)
       fadeMaterial.shader
         .bind()
-        .set1f('uniformAlpha', levelCompleteTime)
+        .set1f('uniformAlpha', alpha)
       quad.draw()
     }
+    star?.render()
   }
 
   return {

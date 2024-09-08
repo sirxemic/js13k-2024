@@ -12,7 +12,7 @@ loading.remove()
 
 startGame(update, render, onResize)
 
-document.addEventListener('mousedown', async () => {
+document.addEventListener('pointerdown', async () => {
   await audioContext.resume()
   startMusic()
 })

@@ -10,9 +10,12 @@ vec4 shader() {
   return vec4(factor * uniformColor * uniformFade, 1.0);
 }
 `, `/*glsl*/
+uniform float uniformAspectRatio;
+
 out vec2 varyingUv;
 void main() {
   gl_Position = uniformProjection * vec4(attributePosition, 1.0);
   varyingPosition = gl_Position.xyz;
+  varyingPosition.x *= uniformAspectRatio;
 }
 `)

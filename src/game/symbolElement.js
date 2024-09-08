@@ -9,7 +9,7 @@ import { add, vec3, vec3Lerp } from '../math/vec3.js'
 import { mat4 } from '../math/mat4.js'
 import { quad } from '../assets/geometries/quad.js'
 import { fillEffectRadius } from './shared.js'
-import { deltaTime, gl, useMaterial } from '../engine.js'
+import { canvas, deltaTime, gl, useMaterial } from '../engine.js'
 import { saturate, smoothstep } from '../math/math.js'
 // <dev-only>
 import { debugMaterial } from '../assets/materials/debugMaterial.js'
@@ -97,6 +97,7 @@ export class SymbolElement {
       .set3fv('uniformColor2', this.color || vec3([0,0,0]))
       .set1f('uniformAlpha', this.alpha ?? 1)
       .set1f('uniformColorMerge', this.colorMerge)
+      .set1f('uniformAspectRatio', canvas.width / canvas.height)
       .setModel(mat4([
         cos, sin, 0, 0,
         -sin, cos, 0, 0,

@@ -1,6 +1,6 @@
-// Constants
 import { vec3 } from './math/vec3.js'
 
+// Constants
 export const VIEW_WIDTH = 480
 export const VIEW_HEIGHT = 360
 export const VIEW_RATIO = VIEW_WIDTH / VIEW_HEIGHT
