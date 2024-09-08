@@ -89,33 +89,32 @@ export class SymbolElement {
 
   render() {
     const initScale = smoothstep(0, 1, saturate(this.initAnimationT))
-    useMaterial(textMaterial)
-    textMaterial.shader.set1f('uniformNegRadius', fillEffectRadius)
-    textMaterial.shader.set3fv('uniformColor1', vec3([1,1,1]))
-    textMaterial.shader.set3fv('uniformColor2', this.color || vec3([0,0,0]))
-    textMaterial.shader.set1f('uniformAlpha', this.alpha ?? 1)
-    textMaterial.shader.set1f('uniformColorMerge', this.colorMerge)
-    this.texture.bind()
     const sin = Math.sin(this.rotation) * this.size * initScale
     const cos = Math.cos(this.rotation) * this.size * initScale
-
-    textMaterial.setModel(mat4([
-      cos, sin, 0, 0,
-      -sin, cos, 0, 0,
-      0, 0, 1, 0,
-      ...add(vec3(), add(vec3(), this.position, this.renderOffset), this.offset), 1
-    ]))
+    useMaterial(textMaterial)
+      .set1f('uniformNegRadius', fillEffectRadius)
+      .set3fv('uniformColor1', vec3([1,1,1]))
+      .set3fv('uniformColor2', this.color || vec3([0,0,0]))
+      .set1f('uniformAlpha', this.alpha ?? 1)
+      .set1f('uniformColorMerge', this.colorMerge)
+      .setModel(mat4([
+        cos, sin, 0, 0,
+        -sin, cos, 0, 0,
+        0, 0, 1, 0,
+        ...add(vec3(), add(vec3(), this.position, this.renderOffset), this.offset), 1
+      ]))
+    this.texture.bind()
     quad.draw()
 
     // Debugging
     // <dev-only>
     // useMaterial(debugMaterial)
-    // debugMaterial.setModel(mat4([
-    //   this.width, 0, 0, 0,
-    //   0, this.height, 0, 0,
-    //   0, 0, 1, 0,
-    //   ...this.position, 1
-    // ]))
+    //   .setModel(mat4([
+    //     this.width, 0, 0, 0,
+    //     0, this.height, 0, 0,
+    //     0, 0, 1, 0,
+    //     ...this.position, 1
+    //   ]))
     // quad.draw(gl.LINE_STRIP)
     // </dev-only>
   }

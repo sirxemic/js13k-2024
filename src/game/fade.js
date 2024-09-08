@@ -9,8 +9,9 @@ export function fadeIn() {
       fadeAlpha -= deltaTime
     },
     render() {
-      fadeMaterial.shader.bind()
-      fadeMaterial.shader.set1f('uniformAlpha', fadeAlpha)
+      fadeMaterial.shader
+        .bind()
+        .set1f('uniformAlpha', fadeAlpha)
       quad.draw()
     }
   }

@@ -76,8 +76,9 @@ window.onresize = onResize
 onResize()
 
 export function useMaterial(material) {
-  material.shader.bind()
-  material.shader.set4x4f('uniformProjection', projectionMatrix)
+  return material.shader
+    .bind()
+    .set4x4f('uniformProjection', projectionMatrix)
 }
 
 // Audio

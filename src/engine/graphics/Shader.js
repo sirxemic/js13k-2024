@@ -27,6 +27,11 @@ export class Shader {
     return this
   }
 
+  setModel (mat) {
+    this.set4x4f('uniformModel', mat)
+    return this
+  }
+
   set1i (name, val) {
     gl.uniform1i(gl.getUniformLocation(this.program, name), val)
     return this
@@ -39,6 +44,11 @@ export class Shader {
 
   set2f (name, x, y) {
     gl.uniform2f(gl.getUniformLocation(this.program, name), x, y)
+    return this
+  }
+
+  set2fv (name, vec) {
+    gl.uniform2fv(gl.getUniformLocation(this.program, name), vec)
     return this
   }
 

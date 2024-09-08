@@ -157,23 +157,23 @@ export class Strand {
 
   render() {
     useMaterial(strandMaterial)
-    strandMaterial.setModel(mat4())
-    strandMaterial.shader.set1f('uniformNegRadius', fillEffectRadius)
+      .setModel(mat4())
+      .set1f('uniformNegRadius', fillEffectRadius)
     this.vertexBuffer.vertexCount = this.strandPositions.length
     this.vertexBuffer.draw(gl.LINE_STRIP)
 
     useMaterial(handleMaterial)
-    handleMaterial.setModel(mat4([
-      HANDLE_SIZE, 0, 0, 0,
-      0, HANDLE_SIZE, 0, 0,
-      0, 0, 1, 0,
-      ...this.handlePosition, 1
-    ]))
+      .setModel(mat4([
+        HANDLE_SIZE, 0, 0, 0,
+        0, HANDLE_SIZE, 0, 0,
+        0, 0, 1, 0,
+        ...this.handlePosition, 1
+      ]))
     quad.draw()
 
     // <dev-only>
     // for (const point of this.strandPositions) {
-    //   handleMaterial.setModel(mat4([
+    //   handleMaterial.shader.setModel(mat4([
     //     HANDLE_SIZE * 0.1, 0, 0, 0,
     //     0, HANDLE_SIZE * 0.1, 0, 0,
     //     0, 0, 1, 0,

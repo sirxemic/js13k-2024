@@ -1,7 +1,7 @@
 import { gl } from '../../engine.js'
 
 export class Texture {
-  constructor ({ data, width, height, wrap = gl.REPEAT, filter = gl.LINEAR }) {
+  constructor ({ data, width, height, wrap = gl.CLAMP_TO_EDGE, filter = gl.LINEAR }) {
     this.texture = gl.createTexture()
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture)

@@ -27,18 +27,18 @@ export class Goal {
 
   render() {
     useMaterial(strandMaterial)
-    strandMaterial.setModel(mat4())
-    strandMaterial.shader.set1f('uniformNegRadius', fillEffectRadius)
+      .setModel(mat4())
+      .set1f('uniformNegRadius', fillEffectRadius)
     this.vertexBuffer.draw(gl.LINE_STRIP)
 
     if (strand.handlePosition[0] <= this.position[0]) {
       useMaterial(endMaterial)
-      endMaterial.setModel(mat4([
-        HANDLE_SIZE, 0, 0, 0,
-        0, HANDLE_SIZE, 0, 0,
-        0, 0, 1, 0,
-        ...this.position, 1
-      ]))
+        .setModel(mat4([
+          HANDLE_SIZE, 0, 0, 0,
+          0, HANDLE_SIZE, 0, 0,
+          0, 0, 1, 0,
+          ...this.position, 1
+        ]))
       quad.draw()
     }
   }

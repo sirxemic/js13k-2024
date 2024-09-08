@@ -40,8 +40,8 @@ export class Tutorial {
     }
 
     useMaterial(strandMaterial)
-    strandMaterial.setModel(mat4())
-    strandMaterial.shader.set1f('uniformNegRadius', fillEffectRadius)
+      .setModel(mat4())
+      .set1f('uniformNegRadius', fillEffectRadius)
     this.vertexBuffer.draw(gl.LINES)
   }
 }

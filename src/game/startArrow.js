@@ -30,23 +30,24 @@ export class StartArrow {
     const size = saturate(this.time * 5) * 16
 
     const offset = Math.sin(this.time * 9) * 4
-    useMaterial(shapeMaterial)
+    let model
     if (this.state === 0) {
-      shapeMaterial.setModel(mat4([
+      model = mat4([
         size, 0, 0, 0,
         0, size, 0, 0,
         0, 0, 1, 0,
         50 + offset, VIEW_HEIGHT / 2 + 70, 0, 1
-      ]))
+      ])
     }
     else {
-      shapeMaterial.setModel(mat4([
+      model = mat4([
         -size, 0, 0, 0,
         0, size, 0, 0,
         0, 0, 1, 0,
         VIEW_WIDTH - 50 + offset, VIEW_HEIGHT / 2 + 70, 0, 1
-      ]))
+      ])
     }
+    useMaterial(shapeMaterial).setModel(model)
     arrowLeft.draw()
   }
 }

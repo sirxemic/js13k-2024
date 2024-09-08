@@ -108,8 +108,8 @@ export class Partitioner {
   render() {
     if (partitions) {
       useMaterial(partitionMaterial)
-      partitionMaterial.shader.set1f('uniformNegRadius', fillEffectRadius)
-      partitionMaterial.shader.set1f('uniformFade', 1 - smoothstep(0, 1, showingEquationsTime))
+        .set1f('uniformNegRadius', fillEffectRadius)
+        .set1f('uniformFade', 1 - smoothstep(0, 1, showingEquationsTime))
       partitions.forEach(partition => {
         partitionMaterial.shader.set3fv('uniformColor', partition.color)
         partition.vertexBuffer.draw()

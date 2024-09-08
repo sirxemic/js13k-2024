@@ -338,8 +338,9 @@ export function getLevel(entities) {
     entities.forEach(entity => entity.render())
     equals13Elements.forEach(element => element.render())
     if (levelCompleteTime > 0) {
-      fadeMaterial.shader.bind()
-      fadeMaterial.shader.set1f('uniformAlpha', levelCompleteTime)
+      fadeMaterial.shader
+        .bind()
+        .set1f('uniformAlpha', levelCompleteTime)
       quad.draw()
     }
   }

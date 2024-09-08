@@ -59,17 +59,8 @@ export class Material {
     this.shader.link()
 
     this.shader.bind()
-    this.textures = []
     for(let i = 0; i < 2; i++) {
       this.shader.set1i(`uniformTextures[${i}]`, i)
     }
-  }
-
-  setModel (mat) {
-    this.shader.set4x4f('uniformModel', mat)
-  }
-
-  setTexture (texture, slot = 0) {
-    this.textures[slot] = texture
   }
 }
