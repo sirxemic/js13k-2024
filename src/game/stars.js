@@ -12,7 +12,7 @@ export class Stars {
     this.positions = Array.from({ length: STAR_COUNT }, () => {
       return vec3([
         VIEW_WIDTH + VIEW_MARGIN_X,
-        goal.position[1],
+        goal.pos[1],
         0
       ])
     })

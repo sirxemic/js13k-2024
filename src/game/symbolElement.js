@@ -62,7 +62,7 @@ export class SymbolElement {
 
     this.rotation = 0
     this.value = value
-    this.position = position
+    this.pos = position
     this.size = size
     this.originalSize = size
     this.originalPosition = vec3(position)
@@ -95,14 +95,14 @@ export class SymbolElement {
       .set1f('uniformNegRadius', fillEffectRadius)
       .set3fv('uniformColor1', vec3([1,1,1]))
       .set3fv('uniformColor2', this.color || vec3([0,0,0]))
-      .set1f('uniformAlpha', this.alpha ?? 1)
+      .set1f('uniformAlpha', this.renderAlpha ?? 1)
       .set1f('uniformColorMerge', this.colorMerge)
       .set1f('uniformAspectRatio', canvas.width / canvas.height)
       .setModel(mat4([
         cos, sin, 0, 0,
         -sin, cos, 0, 0,
         0, 0, 1, 0,
-        ...add(vec3(), add(vec3(), this.position, this.renderOffset), this.offset), 1
+        ...add(vec3(), add(vec3(), this.pos, this.renderOffset), this.offset), 1
       ]))
     this.texture.bind()
     quad.draw()
@@ -114,7 +114,7 @@ export class SymbolElement {
     //     this.width, 0, 0, 0,
     //     0, this.height, 0, 0,
     //     0, 0, 1, 0,
-    //     ...this.position, 1
+    //     ...this.pos, 1
     //   ]))
     // quad.draw(gl.LINE_STRIP)
     // </dev-only>

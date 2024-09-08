@@ -107,7 +107,7 @@ export function getLevel(entities) {
       }
       else {
         if (lastPointerPosition) strand.move(subtract(vec3(), pointerPosition, lastPointerPosition))
-        if (distance(strand.handlePosition, goal.position) < HANDLE_SIZE) {
+        if (distance(strand.handlePosition, goal.pos) < HANDLE_SIZE) {
           setFinished()
         }
       }
@@ -119,8 +119,8 @@ export function getLevel(entities) {
 
   function finishUpdate() {
     const target = vec3([
-      goal.position[0] + (finishAnimationT + 1) * finishAnimationT * 100,
-      goal.position[1],
+      goal.pos[0] + (finishAnimationT + 1) * finishAnimationT * 100,
+      goal.pos[1],
       0
     ])
     if (target[0] > strand.handlePosition[0]) {
@@ -133,7 +133,7 @@ export function getLevel(entities) {
 
     finishAnimationT += deltaTime
 
-    strand.alpha = goal.alpha = smoothstep(1, 0.9, finishAnimationT)
+    strand.renderAlpha = goal.renderAlpha = smoothstep(1, 0.9, finishAnimationT)
 
     if (finishAnimationT > 1) {
       if (elements[0].partition === elements[1].partition && tutorial) {
@@ -150,7 +150,7 @@ export function getLevel(entities) {
     for (const element of elements) {
       partitionElements[element.partition].push(element)
       element.targetSize = 0
-      element.targetPosition = element.position
+      element.targetPosition = element.pos
     }
     equations = getEquations(partitionElements)
     hasEquations = equations.length > 0
@@ -179,8 +179,8 @@ export function getLevel(entities) {
   function makeEquationUpdate() {
     const t = smoothstep(0, 1, showingEquationsTime)
     for (const element of elements) {
-      addScaled(element.position, element.originalPosition, subtract(vec3(), element.targetPosition, element.originalPosition), t)
-      addScaled(element.position, element.position, vec3([Math.random() * 4 - 2, 0, 0]), 1 - t)
+      addScaled(element.pos, element.originalPosition, subtract(vec3(), element.targetPosition, element.originalPosition), t)
+      addScaled(element.pos, element.pos, vec3([Math.random() * 4 - 2, 0, 0]), 1 - t)
       element.size = element.originalSize + (element.targetSize - element.originalSize) * t
       if (element.useAsMultiply) {
         element.rotation = t * 0.25 * Math.PI
@@ -201,7 +201,7 @@ export function getLevel(entities) {
 
   function setElementsAnimationPositionFrom() {
     for (const element of elements) {
-      element.animationPositionFrom = vec3(element.position)
+      element.animationPositionFrom = vec3(element.pos)
     }
   }
 
@@ -215,10 +215,10 @@ export function getLevel(entities) {
       const doMerge = equation.map(el => el.value).join('') !== '13'
       equation.forEach(element => element.doMerge = doMerge)
       if (doMerge) {
-        const element = new SymbolElement('13', 150, vec3([VIEW_WIDTH / 2, equation[0].position[1], 0]))
+        const element = new SymbolElement('13', 150, vec3([VIEW_WIDTH / 2, equation[0].pos[1], 0]))
         element.color = equation[0].color
         element.initAnimationT = 1
-        element.alpha = 0
+        element.renderAlpha = 0
         equals13Elements.push(element)
       }
     }
@@ -232,24 +232,24 @@ export function getLevel(entities) {
     if (t2 === 0) {
       for (const element of elements) {
         if (element.doMerge) {
-          vec3Lerp(element.position, element.animationPositionFrom, vec3([VIEW_WIDTH / 2, element.position[1], 0]), t)
-          element.alpha = (1 - t) ** 0.5
+          vec3Lerp(element.pos, element.animationPositionFrom, vec3([VIEW_WIDTH / 2, element.pos[1], 0]), t)
+          element.renderAlpha = (1 - t) ** 0.5
         }
       }
 
       equals13Elements.forEach(element => {
-        element.alpha = t ** 2
+        element.renderAlpha = t ** 2
       })
     }
     else {
       for (const element of elements) {
         if (element.doMerge) {
-          vec3Lerp(element.position, vec3([VIEW_WIDTH / 2, element.position[1], 0]), element.animationPositionFrom, t2)
-          element.alpha = saturate(3 * t2)
+          vec3Lerp(element.pos, vec3([VIEW_WIDTH / 2, element.pos[1], 0]), element.animationPositionFrom, t2)
+          element.renderAlpha = saturate(3 * t2)
         }
       }
       equals13Elements.forEach(element => {
-        element.alpha = 1 - t2 * 3
+        element.renderAlpha = 1 - t2 * 3
       })
     }
 
@@ -266,7 +266,7 @@ export function getLevel(entities) {
 
     const t = smoothstep(0, 1, undoFinishTime)
     for (const element of elements) {
-      vec3Lerp(element.position, element.animationPositionFrom, element.originalPosition, t)
+      vec3Lerp(element.pos, element.animationPositionFrom, element.originalPosition, t)
       element.size = element.targetSize + (element.originalSize - element.targetSize) * t
       element.colorMerge = 1 - t
 
@@ -278,14 +278,14 @@ export function getLevel(entities) {
       }
     }
 
-    strand.alpha = undoFinishTime
-    goal.alpha = undoFinishTime
+    strand.renderAlpha = undoFinishTime
+    goal.renderAlpha = undoFinishTime
 
     strand.rewind()
     if (
       undoFinishTime >= 1 &&
-      strand.handlePosition[0] < goal.position[0] &&
-      distance(strand.handlePosition, goal.position) > HANDLE_SIZE * 3
+      strand.handlePosition[0] < goal.pos[0] &&
+      distance(strand.handlePosition, goal.pos) > HANDLE_SIZE * 3
     ) {
       finishAnimationT = 0
       resetShowingEquationsTime()
@@ -317,51 +317,49 @@ export function getLevel(entities) {
     }
   }
 
-  function update() {
-    switch (levelState) {
-      case STATE_INTRO:
-        introUpdate()
-        break
-      case STATE_PLAYING:
-        playingUpdate()
-        break
-      case STATE_FINISH_ANIMATION:
-        finishUpdate()
-        break
-      case STATE_MAKE_EQUATION:
-        makeEquationUpdate()
-        break
-      case STATE_FINISH_EQUATION:
-        finishEquationUpdate()
-        break
-      case STATE_UNDO_FINISH:
-        backToPlayingUpdate()
-        break
-      case STATE_LEVEL_COMPLETE:
-        levelCompleteUpdate()
-        break
-    }
-    setFillEffectRadius(2 * finishAnimationT * finishAnimationT)
-    entities.forEach(ent => ent.update?.())
-    star?.update()
-  }
-
-  function render() {
-    partitioner.render()
-    entities.forEach(entity => entity.render())
-    equals13Elements.forEach(element => element.render())
-    if (levelCompleteTime > 0) {
-      const alpha = smoothstep(0.5, 1, levelCompleteTime)
-      fadeMaterial.shader
-        .bind()
-        .set1f('uniformAlpha', alpha)
-      quad.draw()
-    }
-    star?.render()
-  }
 
   return {
-    update,
-    render
+    update() {
+      switch (levelState) {
+        case STATE_INTRO:
+          introUpdate()
+          break
+        case STATE_PLAYING:
+          playingUpdate()
+          break
+        case STATE_FINISH_ANIMATION:
+          finishUpdate()
+          break
+        case STATE_MAKE_EQUATION:
+          makeEquationUpdate()
+          break
+        case STATE_FINISH_EQUATION:
+          finishEquationUpdate()
+          break
+        case STATE_UNDO_FINISH:
+          backToPlayingUpdate()
+          break
+        case STATE_LEVEL_COMPLETE:
+          levelCompleteUpdate()
+          break
+      }
+      setFillEffectRadius(2 * finishAnimationT * finishAnimationT)
+      entities.forEach(ent => ent.update?.())
+      star?.update()
+    },
+
+    render() {
+      partitioner.render()
+      entities.forEach(entity => entity.render())
+      equals13Elements.forEach(element => element.render())
+      if (levelCompleteTime > 0) {
+        const alpha = smoothstep(0.5, 1, levelCompleteTime)
+        fadeMaterial.shader
+          .bind()
+          .set1f('uniformAlpha', alpha)
+        quad.draw()
+      }
+      star?.render()
+    }
   }
 }

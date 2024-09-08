@@ -24,9 +24,9 @@ export class Partitioner {
       const points = [
         ...strand.strandPositions.slice(1),
         vec3([
-          goal.position[0] + 500,
-          goal.position[1],
-          goal.position[2]
+          goal.pos[0] + 500,
+          goal.pos[1],
+          goal.pos[2]
         ]),
         ...perimeterVertices
       ]
@@ -80,7 +80,7 @@ export class Partitioner {
     ])
 
     for (const element of elements) {
-      element.partition = this.getElementPartition(element.position)
+      element.partition = this.getElementPartition(element.pos)
       element.color = this.getElementPartitionColor(element.partition)
     }
   }

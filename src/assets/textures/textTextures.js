@@ -3,13 +3,13 @@ import { getImageDataFromSvgCode, svg, text as svgText } from '../../generationU
 import { gl } from '../../engine.js'
 
 export async function generateText(text) {
-  const code = svgText({
+  const code = svgText(
     text,
-    style: '900 700px Times',
-    color: '#fff',
-    x: 256,
-    y: 490
-  })
+    '900 700px Times',
+    '#fff',
+    256,
+    490
+  )
 
   return new Texture({
     data: await getImageDataFromSvgCode(code, 512, 512),
@@ -19,13 +19,13 @@ export async function generateText(text) {
 
 export let titleTexture = new Texture({
   data: await getImageDataFromSvgCode(
-    svgText({
-      text: 'Do Not Make',
-      style: '900 100px Times',
-      color: '#fff',
-      x: 512,
-      y: 256
-    }),
+    svgText(
+      'Do Not Make',
+      '900 100px Times',
+      '#fff',
+       512,
+       256
+    ),
     1024,
     1024
   ),
@@ -40,13 +40,13 @@ export let multiplyTexture = await generateText('×')
 
 export let equals13Texture = new Texture({
   data: await getImageDataFromSvgCode(
-    svgText({
-      text: '13',
-      style: '900 200px Times',
-      color: '#fff',
-      x: 256,
-      y: 320
-    }),
+    svgText(
+      '13',
+      '900 200px Times',
+      '#fff',
+      256,
+      320
+    ),
     512,
     512
   ),
@@ -54,19 +54,19 @@ export let equals13Texture = new Texture({
 })
 
 export let endTexture = new Texture({
-  data: await getImageDataFromSvgCode(svgText({
-      text: `That’s all!`,
-      style: '900 100px Times',
-      color: '#fff',
-      x: 512,
-      y: 512
-    }) + svgText({
-    text: `Thanks for playing!`,
-    style: '900 70px Times',
-    color: '#fff',
-    x: 512,
-    y: 600
-  }),
+  data: await getImageDataFromSvgCode(svgText(
+    `That’s all!`,
+    '900 100px Times',
+    '#fff',
+    512,
+    512
+    ) + svgText(
+      `Thanks for playing!`,
+    '900 70px Times',
+    '#fff',
+    512,
+    600
+  ),
     1024,
     1024
   ),

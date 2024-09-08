@@ -2,7 +2,13 @@ export function svg (width, height, ...content) {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">${content.join('')}</svg>`
 }
 
-export function text ({ text, color, x, y, style }) {
+export function text (
+  text,
+  style,
+  color,
+  x,
+  y
+) {
   return `<text style="font:${style}" fill="${color}" text-anchor="middle" x="${x}" y="${y}">${text}</text>`
 }
 

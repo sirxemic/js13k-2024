@@ -7,7 +7,8 @@
     "dev": "vite",
     "dev-vr": "cross-env VR=1 vite",
     "build": "node build.js",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "info": "node tools/info.js"
   },
   "author": "sirxemic",
   "license": "MIT",

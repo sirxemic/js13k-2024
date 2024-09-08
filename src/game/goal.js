@@ -8,7 +8,7 @@ import { quad } from '../assets/geometries/quad.js'
 
 export class Goal {
   constructor(position) {
-    this.position = position
+    this.pos = position
     this.vertexBuffer = new VertexBuffer()
     this.vertexBuffer.vertexLayout([3])
     this.vertexBuffer.vertexData(
@@ -22,7 +22,7 @@ export class Goal {
       ])
     )
 
-    this.alpha = 1
+    this.renderAlpha = 1
   }
 
   update() {
@@ -32,17 +32,17 @@ export class Goal {
   render() {
     useMaterial(strandMaterial)
       .setModel(mat4())
-      .set1f('uniformAlpha', this.alpha)
+      .set1f('uniformAlpha', this.renderAlpha)
       .set1f('uniformAspectRatio', canvas.width / canvas.height)
     this.vertexBuffer.draw(gl.LINE_STRIP)
 
-    if (strand.handlePosition[0] <= this.position[0]) {
+    if (strand.handlePosition[0] <= this.pos[0]) {
       useMaterial(endMaterial)
         .setModel(mat4([
           HANDLE_SIZE, 0, 0, 0,
           0, HANDLE_SIZE, 0, 0,
           0, 0, 1, 0,
-          ...this.position, 1
+          ...this.pos, 1
         ]))
       quad.draw()
     }

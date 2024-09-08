@@ -66,7 +66,7 @@ export class Strand {
       0
     )
 
-    this.alpha = 1
+    this.renderAlpha = 1
   }
 
   startDrag() {
@@ -91,7 +91,7 @@ export class Strand {
 
   collides(point) {
     if (elements.some(element => {
-      return Math.abs(point[0] - element.position[0]) < element.width && Math.abs(point[1] - element.position[1]) < element.height
+      return Math.abs(point[0] - element.pos[0]) < element.width && Math.abs(point[1] - element.pos[1]) < element.height
     })) {
       return true
     }
@@ -117,8 +117,8 @@ export class Strand {
     this.handlePosition.set(newPosition)
 
     if (collisionCheck) {
-      const maxX = this.handlePosition[1] > goal.position[1] - HANDLE_SIZE && this.handlePosition[1] < goal.position[1] + HANDLE_SIZE
-        ? VIEW_WIDTH + Math.abs(this.handlePosition[1] - goal.position[1])
+      const maxX = this.handlePosition[1] > goal.pos[1] - HANDLE_SIZE && this.handlePosition[1] < goal.pos[1] + HANDLE_SIZE
+        ? VIEW_WIDTH + Math.abs(this.handlePosition[1] - goal.pos[1])
         : VIEW_WIDTH - HANDLE_SIZE
 
       this.handlePosition[0] = clamp(this.handlePosition[0], HANDLE_SIZE, maxX)
@@ -239,7 +239,7 @@ export class Strand {
   render() {
     useMaterial(strandMaterial)
       .setModel(mat4())
-      .set1f('uniformAlpha', this.alpha)
+      .set1f('uniformAlpha', this.renderAlpha)
       .set1f('uniformAspectRatio', canvas.width / canvas.height)
     this.vertexBuffer.vertexCount = this.strandPositions.length
     this.vertexBuffer.draw(gl.LINE_STRIP)

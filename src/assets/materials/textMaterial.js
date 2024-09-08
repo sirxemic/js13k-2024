@@ -8,10 +8,10 @@ uniform vec3 uniformColor2;
 uniform float uniformAlpha;
 uniform float uniformColorMerge;
 vec4 shader() {
-  vec3 color = uniformNegRadius * 2.0 > length(varyingPosition.xy) ? uniformColor2 : uniformColor1;
-  color = mix(uniformColor1, color, uniformColorMerge);
-  float alpha = texture(uniformTextures[0], varyingUv).a * uniformAlpha;
-  return vec4(color, alpha);
+  vec3 c = uniformNegRadius * 2.0 > length(varyingPosition.xy) ? uniformColor2 : uniformColor1;
+  c = mix(uniformColor1, c, uniformColorMerge);
+  float a = texture(uniformTextures[0], varyingUv).a * uniformAlpha;
+  return vec4(c, a);
 }
 `, `/*glsl*/
 out vec2 varyingUv;
