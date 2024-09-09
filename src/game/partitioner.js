@@ -104,7 +104,6 @@ export class Partitioner {
 
   getElementPartitionColor(partitionIndex) {
     if (partitionIndex === -1) {
-      alert('uhm?')
       return vec3([0.5, 0.5, 0.5])
     }
     else {
@@ -148,7 +147,7 @@ export class Partitioner {
         -1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
-        VIEW_WIDTH + HANDLE_SIZE - this.previewOffset, 0, 0, 1
+        goal.pos[0] + HANDLE_SIZE - this.previewOffset, 0, 0, 1
       ]))
       .set1f('uniformSplitY', goal.pos[1])
     teethThing.draw(gl.TRIANGLE_FAN)

@@ -115,7 +115,7 @@ export function getLevel(entities) {
       }
       else {
         if (lastPointerPosition) strand.move(subtract(vec3(), pointerPosition, lastPointerPosition))
-        if (distance(strand.handlePosition, goal.pos) < HANDLE_SIZE) {
+        if (distance(strand.handlePosition, goal.pos) < HANDLE_SIZE && Math.abs(strand.handlePosition[1] - goal.pos[1]) < HANDLE_SIZE / 2) {
           setFinished()
         }
       }
@@ -131,7 +131,7 @@ export function getLevel(entities) {
       goal.pos[1],
       0
     ])
-    if (target[0] > strand.handlePosition[0]) {
+    if (distance(target, strand.handlePosition) > 2) {
       strand.move(subtract(vec3(), target, strand.handlePosition), false)
     }
 
@@ -194,7 +194,7 @@ export function getLevel(entities) {
         element.rotation = t * 0.25 * Math.PI
       }
       else {
-        element.rotation = 0
+        element.rotation = element.originalRotation * (1 - t)
       }
     }
 
@@ -285,7 +285,7 @@ export function getLevel(entities) {
         element.rotation = (1 - t) * 0.25 * Math.PI
       }
       else {
-        element.rotation = 0
+        element.rotation = element.originalRotation * t
       }
     }
 
@@ -295,7 +295,7 @@ export function getLevel(entities) {
     strand.rewind()
     if (
       undoFinishTime >= 1 &&
-      strand.handlePosition[0] < goal.pos[0] &&
+      strand.handlePosition[0] <= goal.pos[0] &&
       distance(strand.handlePosition, goal.pos) > HANDLE_SIZE * 3
     ) {
       finishAnimationT = 0

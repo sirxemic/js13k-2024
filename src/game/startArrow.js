@@ -47,7 +47,9 @@ export class StartArrow {
         VIEW_WIDTH - 50 + offset, VIEW_HEIGHT / 2 + 70, 0, 1
       ])
     }
-    useMaterial(shapeMaterial).setModel(model)
+    useMaterial(shapeMaterial)
+      .setModel(model)
+      .set1f('uniformBrightness', 1)
     arrowLeft.draw()
   }
 }

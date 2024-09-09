@@ -4,7 +4,6 @@ import {
   canvas,
   deltaTime,
   gl,
-  lastPointerPosition,
   pointerPosition,
   useMaterial,
   VIEW_HEIGHT,
@@ -12,7 +11,7 @@ import {
 } from '../engine.js'
 import { strandMaterial } from '../assets/materials/strandMaterial.js'
 import { mat4 } from '../math/mat4.js'
-import { elements, goal, HANDLE_SIZE, levelState, STATE_PLAYING } from './shared.js'
+import { elements, HANDLE_SIZE, levelState, STATE_PLAYING } from './shared.js'
 import { handleMaterial } from '../assets/materials/handleMaterial.js'
 import { quad } from '../assets/geometries/quad.js'
 import { setPosition } from './dynamicMusic.js'
@@ -117,11 +116,7 @@ export class Strand {
     this.handlePosition.set(newPosition)
 
     if (collisionCheck) {
-      const maxX = this.handlePosition[1] > goal.pos[1] - HANDLE_SIZE && this.handlePosition[1] < goal.pos[1] + HANDLE_SIZE
-        ? VIEW_WIDTH + Math.abs(this.handlePosition[1] - goal.pos[1])
-        : VIEW_WIDTH - HANDLE_SIZE
-
-      this.handlePosition[0] = clamp(this.handlePosition[0], HANDLE_SIZE, maxX)
+      this.handlePosition[0] = clamp(this.handlePosition[0], HANDLE_SIZE, VIEW_WIDTH - HANDLE_SIZE)
       this.handlePosition[1] = clamp(this.handlePosition[1], HANDLE_SIZE, VIEW_HEIGHT - HANDLE_SIZE)
     }
 
@@ -249,8 +244,19 @@ export class Strand {
         HANDLE_SIZE, 0, 0, 0,
         0, HANDLE_SIZE, 0, 0,
         0, 0, 1, 0,
+        ...add(vec3(), this.handlePosition, vec3([3, 3, 0])), 1
+      ]))
+      .set1f('uniformBrightness', 0)
+    quad.draw()
+
+    handleMaterial.shader
+      .setModel(mat4([
+        HANDLE_SIZE, 0, 0, 0,
+        0, HANDLE_SIZE, 0, 0,
+        0, 0, 1, 0,
         ...this.handlePosition, 1
       ]))
+      .set1f('uniformBrightness', 1)
     quad.draw()
 
     // <dev-only>

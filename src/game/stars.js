@@ -1,4 +1,4 @@
-import { addScaled, scale, vec3 } from '../math/vec3.js'
+import { add, addScaled, scale, vec3 } from '../math/vec3.js'
 import { deltaTime, useMaterial, VIEW_HEIGHT, VIEW_MARGIN_X, VIEW_WIDTH } from '../engine.js'
 import { shapeMaterial } from '../assets/materials/shapeMaterial.js'
 import { mat4 } from '../math/mat4.js'
@@ -38,9 +38,23 @@ export class Stars {
   }
 
   render() {
-    useMaterial(shapeMaterial)
-
     if (this.size < 1) return
+
+    useMaterial(shapeMaterial)
+      .set1f('uniformBrightness', 0)
+
+    for (let i = 0; i < STAR_COUNT; i++) {
+      shapeMaterial.shader.setModel(mat4([
+        this.size, 0, 0, 0,
+        0, this.size, 0, 0,
+        0, 0, 1, 0,
+        ...add(vec3(), this.positions[i], vec3([3, 3, 0])), 1
+      ]))
+      star.draw()
+    }
+
+    shapeMaterial.shader.set1f('uniformBrightness', 1)
+
     for (let i = 0; i < STAR_COUNT; i++) {
       shapeMaterial.shader.setModel(mat4([
         this.size, 0, 0, 0,
