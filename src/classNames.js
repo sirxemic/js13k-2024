@@ -1,3 +1,4 @@
 export const classNames = {
-  loading: 'd'
+  loading: 'd',
+  restartButton: 'b'
 }

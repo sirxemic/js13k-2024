@@ -12,7 +12,11 @@ export async function generateText(text) {
   )
 
   return new Texture({
-    data: await getImageDataFromSvgCode(code, 512, 512),
+    data: await getImageDataFromSvgCode(
+      code,
+      512,
+      512
+    ),
     wrap: gl.CLAMP_TO_EDGE
   })
 }
@@ -34,19 +38,18 @@ export let titleTexture = new Texture({
 
 export let digitTextures = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(digit => generateText(digit)))
 
-export let plusTexture = await generateText('+')
-export let minusTexture = await generateText('−')
-export let multiplyTexture = await generateText('×')
-
-export let equals13Texture = new Texture({
+export let plusTexture = new Texture({
   data: await getImageDataFromSvgCode(
-    svgText(
-      '13',
-      '900 200px Times',
-      '#fff',
-      256,
-      320
-    ),
+    '<path d="M70 233h372v46h-372zM233 70h46v372h-46z" fill="#fff" />',
+    512,
+    512
+  ),
+  wrap: gl.CLAMP_TO_EDGE
+})
+
+export let minusTexture = new Texture({
+  data: await getImageDataFromSvgCode(
+    '<path d="M70 233h372v46h-372z" fill="#fff" />',
     512,
     512
   ),

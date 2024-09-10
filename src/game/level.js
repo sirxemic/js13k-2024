@@ -46,6 +46,7 @@ import { playVictorySound } from './playVictorySound.js'
 import { fadeMaterial } from '../assets/materials/fadeMaterial.js'
 import { quad } from '../assets/geometries/quad.js'
 import { Stars } from './stars.js'
+import { hideRestartButton, restartButton, showRestartButton } from '../ui.js'
 
 function pluck(array, condition) {
   const index = array.findIndex(condition)
@@ -54,6 +55,9 @@ function pluck(array, condition) {
   }
   return array.splice(index, 1)[0]
 }
+
+const CHAR_WIDTH = 70
+const CHAR_HEIGHT = 80
 
 export function getLevel(entities) {
   const elements = entities.filter(ent => ent instanceof SymbolElement)
@@ -74,6 +78,8 @@ export function getLevel(entities) {
   resetIntroTime()
   resetShowingEquationsTime()
   setLevelState(STATE_INTRO)
+
+  hideRestartButton()
 
   // Controls
 
@@ -99,6 +105,8 @@ export function getLevel(entities) {
 
     setLevelState(STATE_FINISH_ANIMATION)
     finishAnimationT = 0
+
+    hideRestartButton()
   }
 
   function introUpdate() {
@@ -122,12 +130,13 @@ export function getLevel(entities) {
     }
     else if (pointerPosition) {
       startDrag()
+      showRestartButton()
     }
   }
 
   function finishUpdate() {
     const target = vec3([
-      goal.pos[0] + (finishAnimationT + 1) * finishAnimationT * 100,
+      goal.pos[0] + (finishAnimationT + 1) * finishAnimationT * VIEW_MARGIN_X,
       goal.pos[1],
       0
     ])
@@ -152,8 +161,7 @@ export function getLevel(entities) {
   }
 
   function checkConditionMet() {
-    const CHAR_WIDTH = 70
-    const CHAR_HEIGHT = 80
+
     let partitionElements = partitions.map(() => [])
     for (const element of elements) {
       partitionElements[element.partition].push(element)
@@ -223,11 +231,16 @@ export function getLevel(entities) {
       const doMerge = equation.map(el => el.value).join('') !== '13'
       equation.forEach(element => element.doMerge = doMerge)
       if (doMerge) {
-        const element = new SymbolElement('13', 150, vec3([VIEW_WIDTH / 2, equation[0].pos[1], 0]))
-        element.color = equation[0].color
-        element.initAnimationT = 1
-        element.renderAlpha = 0
-        equals13Elements.push(element)
+        const elements13 = [
+          new SymbolElement(1, 40, vec3([VIEW_WIDTH / 2 - CHAR_WIDTH / 2, equation[0].pos[1], 0])),
+          new SymbolElement(3, 40, vec3([VIEW_WIDTH / 2 + CHAR_WIDTH / 2, equation[0].pos[1], 0]))
+        ]
+        elements13.forEach(element => {
+          element.color = equation[0].color
+          element.initAnimationT = 1
+          element.renderAlpha = 0
+          equals13Elements.push(element)
+        })
       }
     }
   }
@@ -269,6 +282,7 @@ export function getLevel(entities) {
       setPartitions(undefined)
       partitioner.slidePreviewStart()
       setLevelState(STATE_UNDO_FINISH)
+      showRestartButton()
     }
   }
 

@@ -11,6 +11,10 @@
     background: #000;
     user-select: none;
     -webkit-user-select: none;
+    color: #fff;
+    font-family: serif;
+    font-weight: bold;
+    font-size: 2vmax;
   }
 
   canvas {
@@ -20,9 +24,6 @@
   }
 
   .loading {
-    color: #fff;
-    font-family: sans-serif;
-    font-size: 2vw;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -31,11 +32,27 @@
     position: fixed;
     inset: 0;
     padding: 1em;
+    background: #000;
+  }
+  .restartButton {
+    position: fixed;
+    right: -10em;
+    bottom: 0.5em;
+    background: #000;
+    padding: 0.5em 1em 0.5em 0.5em;
+    transition: right 0.2s ease;
+
+    &:hover {
+      color: #000;
+      background: #fff;
+      box-shadow: 0 0.25em 0 #000
+    }
   }
 </style>
 </head>
 <body>
   <canvas></canvas>
+  <div class="restartButton">Restart</div>
 
   <div class="loading">Generating assets...</div>
 

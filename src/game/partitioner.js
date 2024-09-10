@@ -18,10 +18,26 @@ import { smoothstep } from '../math/math.js'
 import { previewColorsMaterial } from '../assets/materials/previewColorsMaterial.js'
 import { teethThing } from '../assets/geometries/teethThing.js'
 import { mat4 } from '../math/mat4.js'
+import { currentLevelIndex } from './currentLevel.js'
+
+const COLORS = [
+  vec3([1, 0.2, 0.2]),
+  vec3([0.1, 0.1, 1]),
+  vec3([0.5, 1, 0.2]),
+  vec3([0.1, 0.2, 1]),
+  vec3([1, 1, 0.2])
+]
+
+function colors(index) {
+  return [
+    COLORS[(index * 2) % COLORS.length],
+    COLORS[(index * 2 + 1) % COLORS.length]
+  ]
+}
 
 export class Partitioner {
-  constructor(colors) {
-    this.colors = colors.map(c => vec3(c))
+  constructor() {
+    this.colors = colors(currentLevelIndex).map(c => vec3(c))
     this.previewOffset = 0
   }
 

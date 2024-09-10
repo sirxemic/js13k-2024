@@ -12,21 +12,6 @@ import { Tutorial } from './tutorial.js'
 import { Partitioner } from './partitioner.js'
 import { HANDLE_SIZE } from './shared.js'
 
-const COLORS = [
-  vec3([1, 0.2, 0.2]),
-  vec3([0.1, 0.1, 1]),
-  vec3([0.5, 1, 0.2]),
-  vec3([0.1, 0.2, 1]),
-  vec3([1, 1, 0.2])
-]
-
-function colors(index) {
-  return [
-    COLORS[(index * 2) % COLORS.length],
-    COLORS[(index * 2 + 1) % COLORS.length]
-  ]
-}
-
 export const levels = [
   () => getLevel([
     new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2 + 70, 0])),
@@ -39,7 +24,7 @@ export const levels = [
     new Title(),
     new StartArrow(),
     new Tutorial(),
-    new Partitioner(colors(0))
+    new Partitioner()
   ]),
 
   () => getLevel([
@@ -51,7 +36,7 @@ export const levels = [
     new SymbolElement(3, 30, vec3([VIEW_WIDTH / 2 + 30, 260, 0])),
     new SymbolElement('+', 30, vec3([VIEW_WIDTH / 2 - 150, 150, 0])),
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 170, 200, 0])),
-    new Partitioner(colors(1)),
+    new Partitioner(),
     fadeIn()
   ]),
 
@@ -64,7 +49,7 @@ export const levels = [
     new SymbolElement(1, 30, vec3([VIEW_WIDTH / 2 + 35, 260, 0])),
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 - 170, 120, 0])),
     new SymbolElement('+', 30, vec3([VIEW_WIDTH / 2 + 150, 200, 0])),
-    new Partitioner(colors(1)),
+    new Partitioner(),
     fadeIn()
   ]),
 
@@ -79,7 +64,7 @@ export const levels = [
     new SymbolElement(3, 40, vec3([VIEW_WIDTH / 2 - 120, 250, 0])),
     new SymbolElement('+', 30, vec3([VIEW_WIDTH / 2 - 150, 150, 0])),
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 170, 320, 0])),
-    new Partitioner(colors(2)),
+    new Partitioner(),
     fadeIn()
   ]),
 
@@ -95,7 +80,7 @@ export const levels = [
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2, 270, 0])),
     new SymbolElement(3, 30, vec3([VIEW_WIDTH / 2 + 100, 265, 0])),
     new SymbolElement(3, 45, vec3([VIEW_WIDTH / 2 - 100, 250, 0])),
-    new Partitioner(colors(3)),
+    new Partitioner(),
     fadeIn()
   ]),
 
@@ -113,7 +98,7 @@ export const levels = [
     new SymbolElement(2, 20, vec3([VIEW_WIDTH / 2 + 30, 20, 0])),
     new SymbolElement(3, 40, vec3([VIEW_WIDTH / 2 - 20, 300, 0])),
     new SymbolElement('+', 20, vec3([VIEW_WIDTH / 2 + 100, 300, 0])),
-    new Partitioner(colors(3)),
+    new Partitioner(),
     fadeIn()
   ]),
 
@@ -129,7 +114,7 @@ export const levels = [
     new SymbolElement(1, 30, vec3([70, 270, 0])),
     new SymbolElement(1, 30, vec3([240+140+20, 200, 0])),
     new SymbolElement(1, 20, vec3([85, 50, 0])),
-    new Partitioner(colors(4)),
+    new Partitioner(),
     fadeIn()
   ]),
 
@@ -152,7 +137,7 @@ export const levels = [
     new SymbolElement(1, 30, vec3([70, 270, 0])),
     new SymbolElement(1, 30, vec3([240+140+20, 200, 0])),
     new SymbolElement(1, 20, vec3([85, 50, 0])),
-    new Partitioner(colors(4)),
+    new Partitioner(),
     fadeIn()
   ]),
 

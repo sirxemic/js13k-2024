@@ -1,7 +1,6 @@
 import {
   digitTextures,
-  equals13Texture,
-  minusTexture, multiplyTexture,
+  minusTexture,
   plusTexture
 } from '../assets/textures/textTextures.js'
 import { textMaterial } from '../assets/materials/textMaterial.js'
@@ -11,9 +10,7 @@ import { quad } from '../assets/geometries/quad.js'
 import { fillEffectRadius } from './shared.js'
 import { canvas, deltaTime, gl, useMaterial } from '../engine.js'
 import { saturate, smoothstep } from '../math/math.js'
-// <dev-only>
 import { debugMaterial } from '../assets/materials/debugMaterial.js'
-// </dev-only>
 
 const digitConfig = [
   [0.65, 0], // 0
@@ -48,14 +45,6 @@ export class SymbolElement {
           this.texture = minusTexture
           this.width = size * 0.8
           this.height = size * 0.15
-          break
-        case '*':
-          this.texture = multiplyTexture
-          this.width = size * 0.65
-          this.height = size * 0.65
-          break
-        case '13':
-          this.texture = equals13Texture
           break
       }
     }
