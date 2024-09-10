@@ -16,6 +16,7 @@ import { handleMaterial } from '../assets/materials/handleMaterial.js'
 import { quad } from '../assets/geometries/quad.js'
 import { setPosition } from './dynamicMusic.js'
 import { clamp } from '../math/math.js'
+import { Spline } from './spline.js'
 
 function debug(points) {
   let debugDiv = document.querySelector('.debug')
@@ -64,6 +65,8 @@ export class Strand {
       ]),
       0
     )
+
+    this.recalculateBuffer()
 
     this.renderAlpha = 1
   }
@@ -157,11 +160,8 @@ export class Strand {
   }
 
   addPoint(point) {
-    this.vertexBuffer.updateVertexData(
-      point,
-      this.strandPositions.length * 3 * 4
-    )
     this.strandPositions.push(vec3(point))
+    this.recalculateBuffer()
   }
 
   updatePoint(index, point) {
@@ -169,10 +169,7 @@ export class Strand {
       index = this.strandPositions.length + index
     }
     this.strandPositions.at(index).set(point)
-    this.vertexBuffer.updateVertexData(
-      point,
-      index * 3 * 4
-    )
+    this.recalculateBuffer()
   }
 
   removePoint(index) {
@@ -180,14 +177,20 @@ export class Strand {
       index = this.strandPositions.length + index
     }
     this.strandPositions.splice(index, 1)
-    if (index < this.strandPositions.length) {
-      this.vertexBuffer.updateVertexData(
-        new Float32Array(
-          this.strandPositions.slice(index).flatMap(x => [...x])
-        ),
-        index * 3 * 4
-      )
+    this.recalculateBuffer()
+  }
+
+  recalculateBuffer() {
+    const bufferSize = Math.min(1024, this.strandPositions.length * 4)
+    const spline = new Spline(this.strandPositions.slice(1))
+    const data = new Float32Array(bufferSize * 3)
+    for (let i = 0; i < bufferSize; i++) {
+      const value = spline.evaluate(i / (bufferSize - 1))
+      data[i * 3] = value[0]
+      data[i * 3 + 1] = value[1]
     }
+    this.vertexBuffer.vertexCount = bufferSize
+    this.vertexBuffer.updateVertexData(data, 3 * 4)
   }
 
   removePointsAfter(index) {
@@ -236,7 +239,6 @@ export class Strand {
       .setModel(mat4())
       .set1f('uniformAlpha', this.renderAlpha)
       .set1f('uniformAspectRatio', canvas.width / canvas.height)
-    this.vertexBuffer.vertexCount = this.strandPositions.length
     this.vertexBuffer.draw(gl.LINE_STRIP)
 
     useMaterial(handleMaterial)
