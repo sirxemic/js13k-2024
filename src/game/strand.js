@@ -17,6 +17,7 @@ import { quad } from '../assets/geometries/quad.js'
 import { setPosition } from './dynamicMusic.js'
 import { clamp } from '../math/math.js'
 import { Spline } from './spline.js'
+import { rotate } from '../math/vec2.js'
 
 function debug(points) {
   let debugDiv = document.querySelector('.debug')
@@ -91,6 +92,26 @@ export class Strand {
     }
   }
 
+  moveAndResolveCollisions(delta, result) {
+    if (!this.collides(add(result, this.handlePosition, delta))) {
+      return false
+    }
+
+    let newDelta = vec3()
+    for (let i = 0.1; i < 1; i += 0.1) {
+      rotate(newDelta, delta, i)
+      if (!this.collides(add(result, this.handlePosition, newDelta))) {
+        return false
+      }
+      rotate(newDelta, delta, -i)
+      if (!this.collides(add(result, this.handlePosition, newDelta))) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   collides(point) {
     if (elements.some(element => {
       return Math.abs(point[0] - element.pos[0]) < element.width && Math.abs(point[1] - element.pos[1]) < element.height
@@ -110,9 +131,12 @@ export class Strand {
   }
 
   moveStep(delta, collisionCheck) {
-    const newPosition = add(vec3(), this.handlePosition, delta)
+    const newPosition = vec3()
 
-    if (collisionCheck && this.collides(newPosition)) {
+    if (!collisionCheck) {
+      add(newPosition, this.handlePosition, delta)
+    }
+    else if (this.moveAndResolveCollisions(delta, newPosition)) {
       return true
     }
 

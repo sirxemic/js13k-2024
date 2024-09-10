@@ -1,4 +1,5 @@
 import { vec3 } from './math/vec3.js'
+import { Stats } from './stats.js'
 
 // Constants
 export const VIEW_WIDTH = 480
@@ -14,12 +15,22 @@ export let deltaTime
 
 let customOnResize
 
+// <dev-only>
+const stats = new Stats()
+stats.showPanel(0)
+document.body.appendChild(stats.dom)
+// </dev-only>
+
 export function startGame(update, render, onResize) {
   let previousT
   let raf
   customOnResize = onResize
 
   function tick(t) {
+    // <dev-only>
+    stats.begin()
+    // </dev-only>
+
     if (!previousT) {
       previousT = t
       raf = window.requestAnimationFrame(tick)
@@ -28,6 +39,7 @@ export function startGame(update, render, onResize) {
 
     deltaTime = Math.min(0.1, (t - previousT) / 1000)
 
+
     update()
     render()
 
@@ -35,6 +47,10 @@ export function startGame(update, render, onResize) {
 
     previousT = t
     raf = window.requestAnimationFrame(tick)
+
+    // <dev-only>
+    stats.end()
+    // </dev-only>
   }
 
   window.requestAnimationFrame(tick)
