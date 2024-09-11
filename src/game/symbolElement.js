@@ -11,6 +11,7 @@ import { fillEffectRadius } from './shared.js'
 import { canvas, deltaTime, gl, useMaterial } from '../engine.js'
 import { saturate, smoothstep } from '../math/math.js'
 import { debugMaterial } from '../assets/materials/debugMaterial.js'
+import { randomMovement } from './randomMovement.js'
 
 const digitConfig = [
   [0.65, 0], // 0
@@ -26,8 +27,9 @@ const digitConfig = [
 ]
 
 export class SymbolElement {
-  constructor(value, size, position, rotation = 0) {
+  constructor(value, size, position) {
     this.renderOffset = vec3()
+    this.rotation = 0
     if (typeof value === 'number') {
       this.texture = digitTextures[value]
       this.width = size * digitConfig[value][0]
@@ -41,6 +43,13 @@ export class SymbolElement {
           this.width = size * 0.8
           this.height = size * 0.8
           break
+        case 'f':
+          value = '-'
+          this.rotation = Math.PI / 2
+          this.texture = minusTexture
+          this.width = size * 0.8
+          this.height = size * 0.8
+          break
         case '-':
           this.texture = minusTexture
           this.width = size * 0.8
@@ -49,32 +58,20 @@ export class SymbolElement {
       }
     }
 
-    this.originalRotation = rotation
-    this.rotation = rotation
+    this.originalRotation = this.rotation
     this.value = value
     this.pos = position
     this.size = size
     this.originalSize = size
     this.originalPosition = vec3(position)
     this.initAnimationT = -size / 50
-    this.offset = vec3()
-    this.offsetFrom = vec3()
-    this.offsetTo = vec3([3 * (Math.random() - 0.5), 3 * (Math.random() - 0.5), 0])
-    this.offsetTime = 0
-    this.offsetTimeVel = Math.random() + 1
+    this.randomMovement = randomMovement()
     this.colorMerge = 1
   }
 
   update() {
     this.initAnimationT += deltaTime * 2
-    this.offsetTime += deltaTime * this.offsetTimeVel
-    vec3Lerp(this.offset, this.offsetFrom, this.offsetTo, smoothstep(0, 1, this.offsetTime))
-    if (this.offsetTime >= 1) {
-      this.offsetTime -= 1
-      this.offsetFrom.set(this.offset)
-      this.offsetTo = vec3([this.size * 0.1 * (Math.random() - 0.5), this.size * 0.1 * (Math.random() - 0.5), 0])
-      this.offsetTimeVel = Math.random() + 1
-    }
+    this.randomMovement.update(this.size * 0.1)
   }
 
   render() {
@@ -92,7 +89,7 @@ export class SymbolElement {
         cos, sin, 0, 0,
         -sin, cos, 0, 0,
         0, 0, 1, 0,
-        ...add(vec3(), add(vec3(), this.pos, this.renderOffset), this.offset), 1
+        ...add(vec3(), add(vec3(), this.pos, this.renderOffset), this.randomMovement.offset), 1
       ]))
     this.texture.bind()
     quad.draw()

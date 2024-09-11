@@ -1,5 +1,5 @@
 import { VertexBuffer } from '../engine/graphics/VertexBuffer.js'
-import { canvas, gl, useMaterial, VIEW_HEIGHT, VIEW_WIDTH } from '../engine.js'
+import { canvas, gl, useMaterial, VIEW_HEIGHT, VIEW_MIDDLE, VIEW_WIDTH } from '../engine.js'
 import { strandMaterial } from '../assets/materials/strandMaterial.js'
 import { mat4 } from '../math/mat4.js'
 import { fillEffectRadius, strand } from './shared.js'
@@ -34,7 +34,7 @@ export class Tutorial {
 
   render() {
     if (!this.show || strand.strandPositions.some(pos => {
-      return distance(pos, vec3([VIEW_WIDTH / 2, VIEW_HEIGHT / 2, 0])) < 20
+      return distance(pos, VIEW_MIDDLE) < 20
     })) {
       return
     }

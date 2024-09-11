@@ -1,4 +1,3 @@
-import { vec3 } from '../math/vec3.js'
 import { deltaTime } from '../engine.js'
 
 export let musicTime = 0
@@ -60,12 +59,6 @@ export function setPartitions(value) {
 }
 
 export const HANDLE_SIZE = 16
-
-export const PARTITION_COLORS = [
-  vec3([1, 0.2, 0.2]),
-  vec3([0.1, 0.1, 1]),
-  vec3([0.5, 1, 0.5])
-]
 
 export const STATE_INTRO = 0
 export const STATE_PLAYING = 1

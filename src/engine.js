@@ -7,6 +7,7 @@ export const VIEW_HEIGHT = 360
 export const VIEW_RATIO = VIEW_WIDTH / VIEW_HEIGHT
 export let VIEW_MARGIN_X = 0
 export let VIEW_MARGIN_Y = 0
+export const VIEW_MIDDLE = vec3([VIEW_WIDTH / 2, VIEW_HEIGHT / 2, 0])
 
 // Loop
 import { mat4, setOrthographicProjection } from './math/mat4.js'
