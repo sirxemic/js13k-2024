@@ -136,7 +136,7 @@ export function getLevel(entities) {
 
   function finishUpdate() {
     const target = vec3([
-      goal.pos[0] + (finishAnimationT + 1) * finishAnimationT * VIEW_MARGIN_X,
+      goal.pos[0] + (finishAnimationT + 1) * finishAnimationT * Math.max(100, VIEW_MARGIN_X),
       goal.pos[1],
       0
     ])
@@ -161,7 +161,6 @@ export function getLevel(entities) {
   }
 
   function checkConditionMet() {
-
     let partitionElements = partitions.map(() => [])
     for (const element of elements) {
       partitionElements[element.partition].push(element)
