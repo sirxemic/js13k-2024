@@ -1,5 +1,5 @@
 import { VertexBuffer } from '../engine/graphics/VertexBuffer.js'
-import { vec3 } from '../math/vec3.js'
+import { distance, vec3 } from '../math/vec3.js'
 import { IndexBuffer } from '../engine/graphics/IndexBuffer.js'
 import { triangulate } from './triangulate.js'
 import {
@@ -19,6 +19,7 @@ import { previewColorsMaterial } from '../assets/materials/previewColorsMaterial
 import { teethThing } from '../assets/geometries/teethThing.js'
 import { mat4 } from '../math/mat4.js'
 import { currentLevelIndex } from './currentLevel.js'
+import { Spline } from './spline.js'
 
 const COLORS = [
   vec3([1, 0.2, 0.2]),
@@ -42,17 +43,40 @@ export class Partitioner {
   }
 
   createPartitions() {
+    const commonPoints = []
+    const source = strand.strandPositions.slice(1)
+
+    // Pull the last point a bit to the right so there is no sharp turn at the end
+    source[source.length - 1] = vec3(source[source.length - 1])
+    source[source.length - 1][0] += 10
+
+    const spline = new Spline(source)
+    let previousPoint
+    let filterCount = 0
+    for (let i = 0; i <= 480; i++) {
+      const point = spline.evaluate(i / 480)
+
+      // Sometimes weird clumps happen??
+      if (previousPoint && distance(point, previousPoint) < 3) {
+        filterCount++
+        continue
+      }
+      previousPoint = point
+
+      commonPoints.push(point)
+    }
+
+    commonPoints.push(
+      vec3([
+        goal.pos[0] + 500,
+        goal.pos[1],
+        goal.pos[2]
+      ])
+    )
+
     function getPartition(perimeterVertices, color, reverse) {
       const vertexBuffer = new VertexBuffer()
-      const points = [
-        ...strand.strandPositions.slice(1),
-        vec3([
-          goal.pos[0] + 500,
-          goal.pos[1],
-          goal.pos[2]
-        ]),
-        ...perimeterVertices
-      ]
+      const points = [...commonPoints, ...perimeterVertices]
       if (reverse) {
         points.reverse()
       }

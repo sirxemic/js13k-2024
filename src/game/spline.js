@@ -17,6 +17,7 @@ export class Spline {
     return vec3([
       this.xs[0][i] + this.xs[1][i] * dx + this.xs[2][i] * dx ** 2 + this.xs[3][i] * dx ** 3,
       this.ys[0][i] + this.ys[1][i] * dx + this.ys[2][i] * dx ** 2 + this.ys[3][i] * dx ** 3,
+      0
     ])
   }
 

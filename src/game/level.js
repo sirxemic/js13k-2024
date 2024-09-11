@@ -7,7 +7,7 @@ import {
 import { addScaled, distance, subtract, vec3, vec3Lerp } from '../math/vec3.js'
 import { saturate, smoothstep } from '../math/math.js'
 import { getEquations } from './getEquations.js'
-import { nextLevel } from './currentLevel.js'
+import { nextLevel, restart } from './currentLevel.js'
 import { SymbolElement } from './symbolElement.js'
 import {
   HANDLE_SIZE,
@@ -145,7 +145,14 @@ export function getLevel(entities) {
     }
 
     if (finishAnimationT === 0) {
-      partitioner.createPartitions()
+      try {
+        partitioner.createPartitions()
+      }
+      catch (e) {
+        alert('Woops! You managed to draw a line that triggered an error! Restarting level...')
+        restart()
+        return
+      }
     }
 
     finishAnimationT += deltaTime

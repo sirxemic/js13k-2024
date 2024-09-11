@@ -26,6 +26,9 @@ export function triangulate(vertices) {
         break
       }
     }
+    if (!earFound) {
+      throw {}
+    }
   }
 
   triangles.push(...remainingVertices.map(vertex => vertex.index))
