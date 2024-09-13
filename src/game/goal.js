@@ -2,23 +2,24 @@ import { VertexBuffer } from '../engine/graphics/VertexBuffer.js'
 import { strandMaterial } from '../assets/materials/strandMaterial.js'
 import { mat4 } from '../math/mat4.js'
 import { fillEffectRadius, HANDLE_SIZE, strand } from './shared.js'
-import { canvas, gl, useMaterial } from '../engine.js'
+import { canvas, gl, useMaterial, VIEW_WIDTH } from '../engine.js'
 import { endMaterial } from '../assets/materials/endMaterial.js'
 import { quad } from '../assets/geometries/quad.js'
+import { vec3 } from '../math/vec3.js'
 
 export class Goal {
-  constructor(position) {
-    this.pos = position
+  constructor(y) {
+    this.pos = vec3([VIEW_WIDTH - HANDLE_SIZE, y, 0])
     this.vertexBuffer = new VertexBuffer()
     this.vertexBuffer.vertexLayout([3])
     this.vertexBuffer.vertexData(
       new Float32Array([
-        position[0] + HANDLE_SIZE,
-        position[1],
-        position[2],
-        position[0] + 500,
-        position[1],
-        position[2]
+        VIEW_WIDTH,
+        y,
+        0,
+        VIEW_WIDTH + 500,
+        y,
+        0
       ])
     )
 

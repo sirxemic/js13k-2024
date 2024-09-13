@@ -198,18 +198,26 @@ export function getLevel(entities) {
     }
   }
 
+  function getUsageRotation(element) {
+    if (!element.useCase || element.useCase === element.value + '') {
+      return 0
+    }
+    if (element.useCase === '6' || element.useCase === '9') {
+      return Math.PI
+    }
+    else {
+      // plus as multiply
+      return 0.25 * Math.PI
+    }
+  }
+
   function makeEquationUpdate() {
     const t = smoothstep(0, 1, showingEquationsTime)
     for (const element of elements) {
       addScaled(element.pos, element.originalPosition, subtract(vec3(), element.targetPosition, element.originalPosition), t)
       addScaled(element.pos, element.pos, vec3([Math.random() * 4 - 2, 0, 0]), 1 - t)
       element.size = element.originalSize + (element.targetSize - element.originalSize) * t
-      if (element.useAsMultiply) {
-        element.rotation = t * 0.25 * Math.PI
-      }
-      else {
-        element.rotation = element.originalRotation * (1 - t)
-      }
+      element.rotation = element.originalRotation + (getUsageRotation(element) - element.originalRotation) * t
     }
 
     if (showingEquationsTime > 1.2) {
@@ -300,13 +308,7 @@ export function getLevel(entities) {
       vec3Lerp(element.pos, element.animationPositionFrom, element.originalPosition, t)
       element.size = element.targetSize + (element.originalSize - element.targetSize) * t
       element.colorMerge = 1 - t
-
-      if (element.useAsMultiply) {
-        element.rotation = (1 - t) * 0.25 * Math.PI
-      }
-      else {
-        element.rotation = element.originalRotation * t
-      }
+      element.rotation = element.originalRotation + (getUsageRotation(element) - element.originalRotation) * (1 - t)
     }
 
     strand.renderAlpha = undoFinishTime

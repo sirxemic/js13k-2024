@@ -49,6 +49,7 @@ let equations = [
   '4*2+2+2+1',
   '4+3+3*2',
   '5*2+3',
+  '3*3+2+2',
   '14-1',
   '15-2',
   '15-1-1',
@@ -64,6 +65,19 @@ let equations = [
   '20-7',
   '21-8',
   '22-9',
+
+  // uhm
+  '55-42',
+  '35-22',
+  '3*3+4',
+  '45-32',
+  '23-5-5',
+  '22-5-4',
+  '3+5+5',
+  '4+4+5',
+  '2*5-2+5',
+  '23-4-4-2',
+  '2+3+4*2'
 ]
 
 export function getEquations(partitionElements) {
@@ -86,17 +100,26 @@ export function getEquations(partitionElements) {
 function getElements(equation, elements) {
   const result = []
   for (const part of equation) {
-    let valueToCheck = part
-    if (part === '*') {
-      valueToCheck = '+'
+    let valuesToCheck
+    if (part === '*' || part === '+') {
+      valuesToCheck = ['+']
     }
-    const elementIndex = elements.findIndex(element => element.value + '' === valueToCheck)
+    else if (part === '-') {
+      valuesToCheck = ['-']
+    }
+    else if (part === '9' || part === '6') {
+      valuesToCheck = [9, 6]
+    }
+    else {
+      valuesToCheck = [Number(part)]
+    }
+    const elementIndex = elements.findIndex(element => valuesToCheck.includes(element.value))
     if (elementIndex === -1) {
-      result.forEach(el => el.useAsMultiply = false)
+      result.forEach(el => el.useCase = undefined)
       elements.push(...result)
       return undefined
     }
-    elements[elementIndex].useAsMultiply = part === '*'
+    elements[elementIndex].useCase = part
     result.push(...elements.splice(elementIndex, 1))
   }
   return result

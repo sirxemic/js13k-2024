@@ -27,9 +27,9 @@ const digitConfig = [
 ]
 
 export class SymbolElement {
-  constructor(value, size, position) {
+  constructor(value, size, position, rotation = 0) {
     this.renderOffset = vec3()
-    this.rotation = 0
+    this.rotation = rotation
     if (typeof value === 'number') {
       this.texture = digitTextures[value]
       this.width = size * digitConfig[value][0]
@@ -53,7 +53,7 @@ export class SymbolElement {
         case '-':
           this.texture = minusTexture
           this.width = size * 0.8
-          this.height = size * 0.15
+          this.height = size * 0.8
           break
       }
     }

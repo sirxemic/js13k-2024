@@ -10,12 +10,11 @@ import { Strand } from './strand.js'
 import { Goal } from './goal.js'
 import { Tutorial } from './tutorial.js'
 import { Partitioner } from './partitioner.js'
-import { HANDLE_SIZE } from './shared.js'
 
 export const levels = [
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2 + 70, 0])),
-    new Strand(vec3([10, VIEW_HEIGHT / 2 + 70, 0])),
+    new Goal(VIEW_HEIGHT / 2 + 70),
+    new Strand(VIEW_HEIGHT / 2 + 70),
     new SymbolElement(1, 50, vec3([VIEW_WIDTH / 2 - 40, 180, 0])),
     new SymbolElement(3, 50, vec3([VIEW_WIDTH / 2 + 40, 180, 0])),
     new SymbolElement('+', 25, vec3([VIEW_WIDTH / 2 - 180, 160, 0])),
@@ -28,8 +27,8 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2, 0])),
-    new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Goal(VIEW_HEIGHT / 2),
+    new Strand(VIEW_HEIGHT / 2),
     new SymbolElement(1, 30, vec3([VIEW_WIDTH / 2 - 30, 100, 0])),
     new SymbolElement(3, 30, vec3([VIEW_WIDTH / 2 + 30, 100, 0])),
     new SymbolElement(1, 30, vec3([VIEW_WIDTH / 2 - 30, 250, 0])),
@@ -41,8 +40,8 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2, 0])),
-    new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Goal(VIEW_HEIGHT / 2),
+    new Strand(VIEW_HEIGHT / 2),
     new SymbolElement(1, 25, vec3([VIEW_WIDTH / 2 - 35, 110, 0])),
     new SymbolElement(3, 35, vec3([VIEW_WIDTH / 2 + 30, 110, 0])),
     new SymbolElement(3, 30, vec3([VIEW_WIDTH / 2 - 30, 250, 0])),
@@ -54,8 +53,8 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2, 0])),
-    new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Goal(VIEW_HEIGHT / 2),
+    new Strand(VIEW_HEIGHT / 2),
     new SymbolElement(1, 30, vec3([VIEW_WIDTH / 2 - 40, 170, 0])),
     new SymbolElement(1, 25, vec3([VIEW_WIDTH / 2 + 140, 65, 0])),
     new SymbolElement(3, 15, vec3([VIEW_WIDTH / 2 + 120, 160, 0])),
@@ -69,8 +68,8 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2, 0])),
-    new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Goal(VIEW_HEIGHT / 2),
+    new Strand(VIEW_HEIGHT / 2),
     new SymbolElement(1, 25, vec3([VIEW_WIDTH / 2 - 160, 70, 0])),
     new SymbolElement(1, 20, vec3([VIEW_WIDTH / 2 - 75, 60, 0])),
     new SymbolElement(1, 40, vec3([VIEW_WIDTH / 2 + 25, 90, 0])),
@@ -85,8 +84,8 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2, 0])),
-    new Strand(vec3([10, VIEW_HEIGHT / 2, 0])),
+    new Goal(VIEW_HEIGHT / 2),
+    new Strand(VIEW_HEIGHT / 2),
     new SymbolElement(1, 35, vec3([VIEW_WIDTH / 2 - 90, 200, 0])),
     new SymbolElement(1, 30, vec3([VIEW_WIDTH / 2 - 20, 130, 0])),
     new SymbolElement(2, 20, vec3([VIEW_WIDTH / 2 - 160, 260, 0])),
@@ -103,8 +102,8 @@ export const levels = [
   ]),
 
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2 + 80, 0])),
-    new Strand(vec3([10, 50, 0])),
+    new Goal(VIEW_HEIGHT / 2 + 80),
+    new Strand(50),
     new SymbolElement('+', 20, vec3([140, 130, 0])),
     new SymbolElement(2, 20, vec3([165, 130, 0])),
     new SymbolElement('+', 50, vec3([240, 130, 0])),
@@ -118,15 +117,70 @@ export const levels = [
     fadeIn()
   ]),
 
-  // TODO: level to confirm previous wasn't a coincidence
+  () => getLevel([
+    new Goal(VIEW_HEIGHT / 2 - 100),
+    new Strand(300),
+    new SymbolElement(3, 20, vec3([60, 130, 0])),
+    new SymbolElement(2, 25, vec3([80, 310, 0])),
+    new SymbolElement(3, 20, vec3([144, 218, 0])),
+    new SymbolElement(3, 30, vec3([344, 200, 0])),
+    new SymbolElement(2, 20, vec3([198, 124, 0])),
+    new SymbolElement(2, 40, vec3([268, 51, 0])),
+    new SymbolElement(2, 20, vec3([387, 74, 0])),
+    new SymbolElement(3, 20, vec3([393, 314, 0])),
+    new SymbolElement(2, 25, vec3([204, 330, 0])),
 
-  // TODO: introduce rotated symbols level
-  // TODO: introduce minus level
-  // TODO: introduce overlapping level
+    new SymbolElement('+', 25, vec3([62, 44, 0])),
+    new SymbolElement('+', 30, vec3([170, 122, 0])),
+    new SymbolElement('+', 25, vec3([170, 333, 0])),
+    new SymbolElement('+', 20, vec3([323, 301, 0])),
+    new SymbolElement('+', 20, vec3([278, 290, 0])),
+    new SymbolElement('+', 25, vec3([430, 155, 0])),
+    new Partitioner(),
+    fadeIn()
+  ]),
 
   () => getLevel([
-    new Goal(vec3([VIEW_WIDTH - HANDLE_SIZE, VIEW_HEIGHT / 2 + 80, 0])),
-    new Strand(vec3([10, 50, 0])),
+    new Goal(VIEW_HEIGHT / 2),
+    new Strand(300),
+    new SymbolElement(1, 20, vec3([60, 130, 0])),
+    new SymbolElement(2, 30, vec3([160, 130, 0])),
+    new SymbolElement(3, 25, vec3([60, 220, 0])),
+    new SymbolElement(4, 20, vec3([400, 180, 0])),
+    new SymbolElement(5, 25, vec3([360, 330, 0])),
+    new SymbolElement(6, 25, vec3([VIEW_WIDTH / 2, 330, 0])),
+    new SymbolElement(6, 30, vec3([VIEW_WIDTH / 2 + 10, 80, 0])),
+    new SymbolElement('+', 30, vec3([160, 330, 0])),
+    new SymbolElement('+', 40, vec3([VIEW_WIDTH - 80, 80, 0])),
+    new SymbolElement('+', 40, vec3([VIEW_WIDTH - 80, VIEW_HEIGHT - 80, 0])),
+
+    new Partitioner(),
+    fadeIn()
+  ]),
+
+  () => getLevel([
+    new Goal(100),
+    new Strand(100),
+    new SymbolElement(2, 25, vec3([71, 50, 0])),
+    new SymbolElement(5, 25, vec3([229, 30, 0])),
+    new SymbolElement(3, 25, vec3([402, 38, 0])),
+    new SymbolElement(3, 25, vec3([216, 216, 0])),
+    new SymbolElement(4, 25, vec3([372, 151, 0])),
+    new SymbolElement(4, 25, vec3([405, 184, 0])),
+    new SymbolElement(2, 25, vec3([102, 318, 0])),
+    new SymbolElement(5, 25, vec3([400, 300, 0])),
+    new SymbolElement('-', 20, vec3([60, 130, 0])),
+    new SymbolElement('-', 20, vec3([190, 230, 0])),
+    new SymbolElement('+', 20, vec3([260, 130, 0])),
+    new SymbolElement('-', 20, vec3([260, 330, 0])),
+
+    new Partitioner(),
+    fadeIn()
+  ]),
+
+  () => getLevel([
+    new Goal(VIEW_HEIGHT / 2 + 80),
+    new Strand(50),
     new SymbolElement('+', 20, vec3([140, 130, 0])),
     new SymbolElement('+', 20, vec3([400, 50, 0])),
     new SymbolElement(2, 20, vec3([165, 130, 0])),
@@ -141,6 +195,25 @@ export const levels = [
     new Partitioner(),
     fadeIn()
   ]),
+
+  () => {
+    const elements = []
+    for (let i = 0; i < 20; i++) {
+      let value
+      if (i % 3 === 0) value = 1
+      else if (i % 4 === 0) value = 2
+      else if (i % 5 === 0) value = 3
+      else value = '+'
+      elements.push(new SymbolElement(value, 20, vec3([i % 5 * 75 + 90, Math.floor(i / 5) * 75 + 70, 0])))
+    }
+    return getLevel([
+      new Goal(VIEW_HEIGHT / 2 + 80),
+      new Strand(50),
+        ...elements,
+      new Partitioner(),
+      fadeIn()
+    ])
+  },
 
   () => finalScreen()
 ]

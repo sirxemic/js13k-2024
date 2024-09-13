@@ -42,7 +42,8 @@ function debug(points) {
 }
 
 export class Strand {
-  constructor(startPosition) {
+  constructor(y) {
+    const startPosition = vec3([10, y, 0])
     this.vertexBuffer = new VertexBuffer()
     this.vertexBuffer.vertexLayout([3])
     this.vertexBuffer.vertexData(new Float32Array(3 * 10 * 1024))
