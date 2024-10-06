@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev-vr": "cross-env VR=1 vite",
-    "build": "node build.js",
+    "build": "tsx build.ts",
     "preview": "vite preview",
     "info": "node tools/info.js"
   },
@@ -14,17 +14,24 @@
   "license": "MIT",
   "devDependencies": {
     "@luma.gl/constants": "^9.0.25",
+    "@rollup/plugin-typescript": "^12.1.0",
+    "@types/google-closure-compiler": "^20231112.0.0",
+    "@types/html-minifier": "^4.0.5",
+    "@types/tempfile": "^2.0.0",
     "advzip-bin": "^2.0.0",
     "google-closure-compiler": "^20240317.0.0",
     "html-minifier": "^3.5.19",
     "rollup": "^2.56.3",
     "spglsl": "^0.2.8",
-    "tempfile": "^2.0.0"
+    "tempfile": "^2.0.0",
+    "tslib": "^2.7.0",
+    "typescript": "^5.6.2"
   },
   "dependencies": {
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-url": "^6.1.0",
     "cross-env": "^7.0.3",
+    "tsx": "^4.19.1",
     "vite": "^5.4.2"
   }
 }
